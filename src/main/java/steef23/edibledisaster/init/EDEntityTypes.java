@@ -18,5 +18,5 @@ public class EDEntityTypes
 			.register("centipede_entity", 
 					() -> EntityType.Builder.<CentipedeEntity>create(CentipedeEntity::new, EntityClassification.CREATURE)
 					.size(1.0f, 1.6f)
-					.build(new ResourceLocation(EdibleDisaster.MOD_ID, "centipedeEntity").toString()));
+					.build(new ResourceLocation(EdibleDisaster.MOD_ID, "centipede_entity").toString()));
 }
