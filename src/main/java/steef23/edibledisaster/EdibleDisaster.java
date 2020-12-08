@@ -15,6 +15,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import steef23.edibledisaster.init.EDEntityTypes;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod("edibledisaster")
@@ -33,6 +34,7 @@ public class EdibleDisaster
         modEventBus.addListener(this::doClientStuff);
         
         //register stuff
+        EDEntityTypes.ENTITY_TYPES.register(modEventBus);
         
         instance = this;
         MinecraftForge.EVENT_BUS.register(this);
