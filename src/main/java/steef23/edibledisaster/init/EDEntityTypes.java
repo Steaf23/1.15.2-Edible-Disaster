@@ -14,9 +14,9 @@ public class EDEntityTypes
 	public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = new DeferredRegister<>(ForgeRegistries.ENTITIES, EdibleDisaster.MOD_ID);
 	
 	
-	public static final RegistryObject<EntityType<CentipedeEntity>> STONE_GOLEM_ENTITY = ENTITY_TYPES
+	public static final RegistryObject<EntityType<CentipedeEntity>> CENTIPEDE_ENTITY = ENTITY_TYPES
 			.register("centipede_entity", 
 					() -> EntityType.Builder.<CentipedeEntity>create(CentipedeEntity::new, EntityClassification.CREATURE)
-					.size(1.0f, 1.6f)
+					.size(1.0f, 1.0f)
 					.build(new ResourceLocation(EdibleDisaster.MOD_ID, "centipede_entity").toString()));
 }

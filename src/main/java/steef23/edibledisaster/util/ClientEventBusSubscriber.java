@@ -7,7 +7,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import steef23.edibledisaster.EdibleDisaster;
-import steef23.edibledisaster.client.renderer.entity.CentipedeEntityRenderer;
+import steef23.edibledisaster.client.renderer.entity.CentipedeRenderer;
 import steef23.edibledisaster.init.EDEntityTypes;
 
 @Mod.EventBusSubscriber(modid = EdibleDisaster.MOD_ID, bus = Bus.MOD, value = Dist.CLIENT)
@@ -16,6 +16,6 @@ public class ClientEventBusSubscriber
 	@SubscribeEvent
 	public static void clientSetup(FMLClientSetupEvent event)
 	{
-		RenderingRegistry.registerEntityRenderingHandler(EDEntityTypes.STONE_GOLEM_ENTITY.get(), CentipedeEntityRenderer::new);
+		RenderingRegistry.registerEntityRenderingHandler(EDEntityTypes.CENTIPEDE_ENTITY.get(), CentipedeRenderer::new);
 	}
 }
