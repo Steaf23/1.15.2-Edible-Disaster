@@ -5,9 +5,9 @@ import com.mojang.blaze3d.vertex.IVertexBuilder;
 
 import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
-import steef23.edibledisaster.entity.CentipedeEntity;
+import steef23.edibledisaster.entity.CentipedeHeadEntity;
 
-public class CentipedeBodyModel<T extends CentipedeEntity> extends EntityModel<T> 
+public class CentipedeBodyModel<T extends CentipedeHeadEntity> extends EntityModel<T> 
 {
 	private final ModelRenderer centipedeBodyPart;
 
