@@ -19,6 +19,7 @@ import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import steef23.edibledisaster.init.EDEntityTypes;
 import steef23.edibledisaster.init.EDItems;
+import steef23.edibledisaster.init.EDPotionTypes;
 import steef23.edibledisaster.item.CentipedeSpawnEggItem;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -40,6 +41,7 @@ public class EdibleDisaster
         //register stuff
         EDItems.ITEMS.register(modEventBus);
         EDEntityTypes.ENTITY_TYPES.register(modEventBus);
+        EDPotionTypes.POTION_TYPES.register(modEventBus);
         
         instance = this;
         MinecraftForge.EVENT_BUS.register(this);
