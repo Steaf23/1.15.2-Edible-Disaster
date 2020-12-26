@@ -1,10 +1,11 @@
 package steef23.edibledisaster.entity;
 
+import java.util.ArrayList;
+import java.util.Random;
+
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
 import net.minecraft.world.World;
 
 //represents the single headpart / master part
@@ -13,18 +14,36 @@ public class CentipedeEntity extends MobEntity
 	private static final double defaultMoveSpeed = .2D;
 	
 	//stores body entity ids for easy conversion
-	private final CentipedePartEntity[] bodyParts;
+	private final ArrayList<CentipedePartEntity> bodyParts;
 	
 	public CentipedeEntity(EntityType<? extends CentipedeEntity> type, World worldIn) 
 	{
 		super(type, worldIn);
+		this.bodyParts = getNewParts();
 	}
 	
-	@Override
-	public void tick() 
+	private ArrayList<CentipedePartEntity> getNewParts()
 	{
-		super.tick();
+		CentipedePartEntity head = new CentipedePartEntity(this, "head");
+		int bodyPartAmount = Math.max(4, Math.abs(new Random().nextInt()) % 12);
+		
+		ArrayList<CentipedePartEntity> parts = new ArrayList<>();
+		parts.add(head);
+		for(int i = 0; i < bodyPartAmount; i++)
+		{
+			CentipedePartEntity part = new CentipedePartEntity(this, "body");
+			part.setPosition(this.getPosX() + 1.0D, this.getPosY(), this.getPosZ());
+			parts.add(part);
+		}
+		
+		return parts;
 	}
+	
+//	@Override
+//	public void livingTick() 
+//	{
+//		super.tick();
+//	}
 	
 	@Override
 	protected void registerAttributes() 
@@ -65,4 +84,9 @@ public class CentipedeEntity extends MobEntity
 //		
 //		this.body = parts;
 //	}
+	
+	public ArrayList<CentipedePartEntity> getBodyParts()
+	{
+		return this.bodyParts;
+	}
 }
