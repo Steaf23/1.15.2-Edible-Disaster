@@ -20,7 +20,7 @@ public class CentipedePartEntity extends Entity
 	@Override
 	protected void registerData() 
 	{
-		
+
 	}
 
 	@Override
