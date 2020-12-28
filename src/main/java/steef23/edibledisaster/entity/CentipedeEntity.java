@@ -6,10 +6,11 @@ import java.util.Random;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.monster.IMob;
 import net.minecraft.world.World;
 
 //represents the single headpart / master part
-public class CentipedeEntity extends MobEntity
+public class CentipedeEntity extends MobEntity implements IMob
 {
 	private static final double defaultMoveSpeed = .2D;
 	
@@ -49,9 +50,9 @@ public class CentipedeEntity extends MobEntity
 	protected void registerAttributes() 
 	{
 		super.registerAttributes();
-		this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(16.0D);
+		this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(1.0D);
 		this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(defaultMoveSpeed);
-	    this.getAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(0.3D);
+	    this.getAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1.0D);
 	}
 	
 //	@Override

@@ -8,6 +8,7 @@ import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.model.EntityModel;
@@ -43,10 +44,13 @@ public class CentipedeRenderer extends MobRenderer<CentipedeEntity, EntityModel<
 			this.models = tmpModels;
 		}
 		
+		matrixStackIn.push();
 		for (CentipedeModel<CentipedeEntity> model : this.models)
 		{
+			matrixStackIn.rotate(Vector3f.YP.rotationDegrees(20.0f));
 			renderPartModel(model, entityIn, 0.0f, 0.0f, matrixStackIn, bufferIn, packedLightIn);
 		}
+		matrixStackIn.pop();
 	}
 	
 	
@@ -59,7 +63,6 @@ public class CentipedeRenderer extends MobRenderer<CentipedeEntity, EntityModel<
 	
 	public void renderPartModel(CentipedeModel<CentipedeEntity> model, CentipedeEntity entityIn, float entityYaw, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn)
 	{
-		
 		matrixStackIn.push();
 
 	    this.applyRotations(entityIn, matrixStackIn, 0.0f, 0.0f, partialTicks);
