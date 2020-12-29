@@ -3,21 +3,27 @@ package steef23.edibledisaster.entity;
 import java.util.ArrayList;
 import java.util.Random;
 
+import net.minecraft.entity.CreatureEntity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.goal.MoveTowardsTargetGoal;
+import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
+import net.minecraft.entity.monster.ZombieEntity;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 //represents the single headpart / master part
-public class CentipedeEntity extends MobEntity
+public class CentipedeEntity extends CreatureEntity
 {
-	private static final double defaultMoveSpeed = .2D;
+	private static final double defaultMoveSpeed = 1.0D;
 	private static final DataParameter<Integer> PART_AMOUNT = EntityDataManager.createKey(CentipedeEntity.class, DataSerializers.VARINT);
+	
+	private boolean firstTick = true;
 	
 	//stores body entity ids for easy conversion
 	private ArrayList<CentipedePartEntity> bodyParts;
@@ -38,14 +44,59 @@ public class CentipedeEntity extends MobEntity
 	}
 	
 	@Override
+	protected void registerGoals() 
+	{
+		super.registerGoals();
+		this.goalSelector.addGoal(1, new MoveTowardsTargetGoal(this, defaultMoveSpeed, 32.0f));
+		this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, ZombieEntity.class, true));
+	}
+	
+	@Override
+	protected void registerAttributes() 
+	{
+		super.registerAttributes();
+		this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(1.0D);
+		this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(defaultMoveSpeed);
+	    this.getAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1.0D);
+	}
+	
+	@Override
+	protected void registerData() 
+	{
+		super.registerData();
+		this.dataManager.register(PART_AMOUNT, 0);
+	}
+	
+	@Override
+	protected void updateAITasks() 
+	{
+		super.updateAITasks();
+	}
+	
+	
+	@Override
 	public void livingTick() 
 	{
-		super.livingTick();
+		if (firstTick)
+		{
+			firstTick = false;
+			this.bodyParts.forEach((part) ->
+			{
+				part.setCurrentPos(new BlockPos(this.getPosX(), this.getPosY(), this.getPosZ()));
+			});
+		}
+		
+		this.bodyParts.forEach((part) ->
+		{
+			part.tick();
+		});
 		
 		if (world.isRemote)
 		{
 			this.syncPartsToClient();
 		}
+		
+		super.livingTick();
 	}
 	
 	//get parts from the datamanager and put them into the client so they get rendered correctly
@@ -64,12 +115,11 @@ public class CentipedeEntity extends MobEntity
 	{
 		ArrayList<CentipedePartEntity> parts = new ArrayList<>();
 		
-		CentipedePartEntity head = new CentipedePartEntity(this, "head");
+		CentipedePartEntity head = new CentipedePartEntity(this, "head", null);
 		parts.add(head);
 		for(int i = 0; i < this.dataManager.get(PART_AMOUNT); i++)
 		{
-			CentipedePartEntity part = new CentipedePartEntity(this, "body");
-			part.setPosition(this.getPosX() + 5.0D, this.getPosY(), this.getPosZ());
+			CentipedePartEntity part = new CentipedePartEntity(this, "body", parts.get(i));
 			parts.add(part);
 		}
 		System.out.println("Server side?: "  + !this.world.isRemote);
@@ -79,22 +129,6 @@ public class CentipedeEntity extends MobEntity
 		});
 		
 		return parts;
-	}
-	
-	@Override
-	protected void registerAttributes() 
-	{
-		super.registerAttributes();
-		this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(1.0D);
-		this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(defaultMoveSpeed);
-	    this.getAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1.0D);
-	}
-	
-	@Override
-	protected void registerData() 
-	{
-		super.registerData();
-		this.dataManager.register(PART_AMOUNT, 0);
 	}
 	
 //	@Override

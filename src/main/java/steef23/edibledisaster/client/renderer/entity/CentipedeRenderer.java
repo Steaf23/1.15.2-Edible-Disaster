@@ -61,6 +61,7 @@ public class CentipedeRenderer extends EntityRenderer<CentipedeEntity>
 	    matrixStackIn.scale(-1.0F, -1.0F, 1.0F);
 	    matrixStackIn.translate(0.0D, (double)-1.501F, 0.0D);
 	    IVertexBuilder ivertexbuilder3 = bufferIn.getBuffer(RenderType.getEntitySolid(this.getEntityTexture(entityIn.centipede)));
+	    partModel.setLivingAnimations(entityIn, 0.0f, 0.0f, partialTicks);
 	    partModel.render(matrixStackIn, ivertexbuilder3, packedLightIn, 1, 1.0F, 1.0F, 1.0F, 1.0F);
 	    matrixStackIn.pop();
 	}
