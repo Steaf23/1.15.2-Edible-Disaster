@@ -12,6 +12,7 @@ public class CentipedePartModel<T extends CentipedePartEntity> extends EntityMod
 {
 	private final ModelRenderer centipedePartBase;
 	
+	@SuppressWarnings("unused")
 	private CentipedePartEntity partInstance;
 
 	public CentipedePartModel(String partType)
@@ -51,7 +52,6 @@ public class CentipedePartModel<T extends CentipedePartEntity> extends EntityMod
 			float red, float green, float blue, float alpha) 
 	{	
 		matrixStackIn.push();
-		translateStack(matrixStackIn, this.partInstance.getPartTranslation());
 		this.centipedePartBase.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
 		matrixStackIn.pop();
 	}

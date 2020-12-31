@@ -2,20 +2,26 @@ package steef23.edibledisaster.entity;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.client.renderer.Vector3d;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.math.Vec3d;
 
 //represents a single body part
 public class CentipedePartEntity extends Entity
 {
 	public final CentipedeEntity centipede;
 	public final String partType;
-	private BlockPos currentPos;
-	private BlockPos prevPos;
 	private final CentipedePartEntity following;
+	
+	private static final DataParameter<Float> POS_X = EntityDataManager.createKey(CentipedeEntity.class, DataSerializers.FLOAT);
+	private static final DataParameter<Float> POS_Y = EntityDataManager.createKey(CentipedeEntity.class, DataSerializers.FLOAT);
+	private static final DataParameter<Float> POS_Z = EntityDataManager.createKey(CentipedeEntity.class, DataSerializers.FLOAT);
+	
+	private static final DataParameter<Boolean> MOVING = EntityDataManager.createKey(CentipedeEntity.class, DataSerializers.BOOLEAN);
 	
 	public CentipedePartEntity(CentipedeEntity centipede, String partType, @Nullable CentipedePartEntity followingPart) 
 	{
@@ -29,59 +35,69 @@ public class CentipedePartEntity extends Entity
 	public void tick() 
 	{
 		super.tick();
-//		System.out.println("server Side?:" + !this.world.isRemote + "EntityID: " + this.getEntityId() + "@ " + this.getPosX() + ", " +  this.getPosY() + ", " + this.getPosZ());
+		if (!this.world.isRemote)
+		{
+			double distance = distanceToFollowing();
+			System.out.println(distance);
+			if (distance > 0.5D)
+			{
+				Vec3d position = this.getPositionVec();
+				Vec3d goal = this.partType == "head" ? this.centipede.getPositionVec() : this.following.getPositionVec();
+				Vec3d direction = goal.subtract(position).normalize();
+				Vec3d movementVec = direction.scale(this.centipede.getCurrentMovementSpeed()).scale(0.01D).add(this.getPositionVec());
+				
+				this.dataManager.set(POS_X, (float)movementVec.x);
+				this.dataManager.set(POS_Y, (float)movementVec.y);
+				this.dataManager.set(POS_Z, (float)movementVec.z);
+				
+				this.dataManager.set(MOVING, true);
+			}
+			else
+			{
+				this.dataManager.set(MOVING, false);
+			}
+		}
+		else
+		{
+			if (this.dataManager.get(MOVING))
+			{
+				this.setPosition(this.dataManager.get(POS_X), this.dataManager.get(POS_Y), this.dataManager.get(POS_Z));
+			}
+		}
+	}
+	
+//	//gets the translation vector between currentPos and prevPos used for rendering
+//	public Vector3d getPartTranslation()
+//	{
+//		if (this.currentPos == null || this.prevPos == null)
+//		{
+//			return new Vector3d(0.0D, 0.0D, 0.0D);
+//		}
+//		return new Vector3d(this.currentPos.getX() - this.prevPos.getX(), 
+//				this.currentPos.getY() - this.prevPos.getY(), 
+//				this.currentPos.getZ() - this.prevPos.getZ());
+//	}
+	
+	public double distanceToFollowing()
+	{
 		if (this.partType == "head")
 		{
-			BlockPos entityPos = new BlockPos(this.centipede.getPosX(), this.centipede.getPosY(), this.centipede.getPosZ());
-			System.out.println(entityPos);
-			if (!isSamePos(this.currentPos, entityPos))
-			{
-				this.prevPos = this.currentPos;
-				this.currentPos = entityPos;
-			}
+			return this.getPositionVec().squareDistanceTo(this.centipede.getPositionVec());
 		}
-		else //part is not Head
+		else
 		{
-			if (!isSamePos(this.currentPos, this.following.prevPos))
-			{
-				this.prevPos = this.currentPos;
-				this.currentPos = this.following.prevPos;
-			}
+			return this.getPositionVec().squareDistanceTo(this.following.getPositionVec());
 		}
-	}
-	
-	//gets the translation vector between currentPos and prevPos
-	public Vector3d getPartTranslation()
-	{
-		if (this.currentPos == null || this.prevPos == null)
-		{
-			return new Vector3d(0.0D, 0.0D, 0.0D);
-		}
-		return new Vector3d(this.currentPos.getX() - this.prevPos.getX(), 
-				this.currentPos.getY() - this.prevPos.getY(), 
-				this.currentPos.getZ() - this.prevPos.getZ());
-	}
-	
-	public boolean setCurrentPos(BlockPos pos)
-	{
-		this.currentPos = pos;
-		return pos != null;
-	}
-	
-	public BlockPos getCurrentPos()
-	{
-		return this.currentPos;
-	}
-	
-	public BlockPos getPrevPos()
-	{
-		return this.prevPos != null ? this.prevPos : this.currentPos;
 	}
 	
 	@Override
 	protected void registerData() 
 	{
-
+		this.dataManager.register(POS_X, (float)this.getPosX());
+		this.dataManager.register(POS_Y, (float)this.getPosY());
+		this.dataManager.register(POS_Z, (float)this.getPosZ());
+		
+		this.dataManager.register(MOVING, false);
 	}
 
 	@Override
@@ -106,15 +122,5 @@ public class CentipedePartEntity extends Entity
 	public IPacket<?> createSpawnPacket() 
 	{
 		throw new UnsupportedOperationException();
-	}
-	
-	public boolean isSamePos(BlockPos p1, BlockPos p2)
-	{
-		if (p1 == null || p2 ==  null)
-		{
-			return false;
-		}
-		
-		return p1.getX() == p2.getX() && p1.getY() == p2.getY() && p1.getZ() == p1.getZ();
 	}
 }

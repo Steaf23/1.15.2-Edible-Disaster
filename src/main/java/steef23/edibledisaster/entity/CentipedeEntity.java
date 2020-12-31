@@ -12,7 +12,6 @@ import net.minecraft.entity.monster.ZombieEntity;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -76,16 +75,16 @@ public class CentipedeEntity extends CreatureEntity
 	
 	@Override
 	public void livingTick() 
-	{
-		if (firstTick)
+	{	
+		if (this.firstTick)
 		{
-			firstTick = false;
+			this.firstTick = false;
+			
 			this.bodyParts.forEach((part) ->
 			{
-				part.setCurrentPos(new BlockPos(this.getPosX(), this.getPosY(), this.getPosZ()));
+				part.setPosition(this.getPosX(), this.getPosY(), this.getPosZ());
 			});
 		}
-		
 		this.bodyParts.forEach((part) ->
 		{
 			part.tick();
@@ -165,5 +164,10 @@ public class CentipedeEntity extends CreatureEntity
 	public ArrayList<CentipedePartEntity> getBodyParts()
 	{
 		return this.bodyParts;
+	}
+	
+	public double getCurrentMovementSpeed()
+	{
+		return defaultMoveSpeed;
 	}
 }
