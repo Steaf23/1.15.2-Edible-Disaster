@@ -34,18 +34,20 @@ public class CentipedePartEntity extends Entity
 	@Override
 	public void tick() 
 	{
+		System.out.println("Part: " + this.partType + " Position: " + this.getPosX() + ", " + this.getPosY() + ", " + this.getPosZ());
 		super.tick();
 		if (!this.world.isRemote)
 		{
 			double distance = distanceToFollowing();
-			System.out.println(distance);
+			
 			if (distance > 0.5D)
 			{
 				Vec3d position = this.getPositionVec();
 				Vec3d goal = this.partType == "head" ? this.centipede.getPositionVec() : this.following.getPositionVec();
 				Vec3d direction = goal.subtract(position).normalize();
-				Vec3d movementVec = direction.scale(this.centipede.getCurrentMovementSpeed()).scale(0.01D).add(this.getPositionVec());
+				Vec3d movementVec = direction.scale(this.centipede.getCurrentMovementSpeed()).scale(0.1D).add(this.getPositionVec());
 				
+				this.setPosition(movementVec.x, movementVec.y, movementVec.z);
 				this.dataManager.set(POS_X, (float)movementVec.x);
 				this.dataManager.set(POS_Y, (float)movementVec.y);
 				this.dataManager.set(POS_Z, (float)movementVec.z);
@@ -59,10 +61,7 @@ public class CentipedePartEntity extends Entity
 		}
 		else
 		{
-			if (this.dataManager.get(MOVING))
-			{
-				this.setPosition(this.dataManager.get(POS_X), this.dataManager.get(POS_Y), this.dataManager.get(POS_Z));
-			}
+			this.setPosition(this.dataManager.get(POS_X), this.dataManager.get(POS_Y), this.dataManager.get(POS_Z));
 		}
 	}
 	
@@ -88,6 +87,16 @@ public class CentipedePartEntity extends Entity
 		{
 			return this.getPositionVec().squareDistanceTo(this.following.getPositionVec());
 		}
+	}
+	
+	public CentipedePartEntity getFollowing()
+	{
+		return this.following;
+	}
+	
+	public Vec3d getPositionFromManager()
+	{
+		return new Vec3d(this.dataManager.get(POS_X), this.dataManager.get(POS_Y), this.dataManager.get(POS_Z));
 	}
 	
 	@Override

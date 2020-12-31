@@ -3,9 +3,9 @@ package steef23.edibledisaster.client.renderer.entity.model;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 
-import net.minecraft.client.renderer.Vector3d;
 import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.util.math.Vec3d;
 import steef23.edibledisaster.entity.CentipedePartEntity;
 
 public class CentipedePartModel<T extends CentipedePartEntity> extends EntityModel<CentipedePartEntity> 
@@ -52,6 +52,7 @@ public class CentipedePartModel<T extends CentipedePartEntity> extends EntityMod
 			float red, float green, float blue, float alpha) 
 	{	
 		matrixStackIn.push();
+//		translatePosToStack(matrixStackIn, this.partInstance.getPositionFromManager(), this.partInstance.centipede.getPositionVec());
 		this.centipedePartBase.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
 		matrixStackIn.pop();
 	}
@@ -63,8 +64,10 @@ public class CentipedePartModel<T extends CentipedePartEntity> extends EntityMod
 
 	}
 	
-	public static void translateStack(MatrixStack matrixStack, Vector3d vec)
+	public static void translatePosToStack(MatrixStack matrixStack, Vec3d target, Vec3d origin)
 	{
-		matrixStack.translate(vec.x, vec.y, vec.z);
+		// part vector - centipede vector
+		Vec3d translationVec = target.subtract(origin);
+		matrixStack.translate(translationVec.x, translationVec.y, translationVec.z);
 	}
 }

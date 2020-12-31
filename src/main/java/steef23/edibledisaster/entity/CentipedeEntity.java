@@ -12,6 +12,7 @@ import net.minecraft.entity.monster.ZombieEntity;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -87,7 +88,22 @@ public class CentipedeEntity extends CreatureEntity
 		}
 		this.bodyParts.forEach((part) ->
 		{
-			part.tick();
+//			part.tick();
+			System.out.format("Side: %s Part: %s Position: (%.2f , %.2f, %.2f) \n", 
+					this.world.isRemote ? "Client" : "Server",
+					part.partType, 
+					part.getPosX(), part.getPosY(), part.getPosZ());
+			double distance = part.distanceToFollowing();
+			
+			if (distance > 0.5D)
+			{
+				Vec3d position = part.getPositionVec();
+				Vec3d goal = part.partType == "head" ? this.getPositionVec() : part.getFollowing().getPositionVec();
+				Vec3d direction = goal.subtract(position).normalize();
+				Vec3d movementVec = direction.scale(this.getCurrentMovementSpeed()).scale(0.1D).add(part.getPositionVec());
+				
+				part.setPosition(movementVec.x, movementVec.y, movementVec.z);
+			}
 		});
 		
 		if (world.isRemote)
