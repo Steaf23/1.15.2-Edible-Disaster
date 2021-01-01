@@ -8,7 +8,6 @@ import net.minecraft.network.IPacket;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.math.Vec3d;
 
 //represents a single body part
 public class CentipedePartEntity extends Entity
@@ -17,12 +16,8 @@ public class CentipedePartEntity extends Entity
 	public final String partType;
 	private final CentipedePartEntity following;
 	
-	private static final DataParameter<Float> POS_X = EntityDataManager.createKey(CentipedeEntity.class, DataSerializers.FLOAT);
-	private static final DataParameter<Float> POS_Y = EntityDataManager.createKey(CentipedeEntity.class, DataSerializers.FLOAT);
-	private static final DataParameter<Float> POS_Z = EntityDataManager.createKey(CentipedeEntity.class, DataSerializers.FLOAT);
-	
-	private static final DataParameter<Boolean> MOVING = EntityDataManager.createKey(CentipedeEntity.class, DataSerializers.BOOLEAN);
-	
+	private static final DataParameter<Boolean> SHOULD_MOVE = EntityDataManager.createKey(CentipedeEntity.class, DataSerializers.BOOLEAN);
+		
 	public CentipedePartEntity(CentipedeEntity centipede, String partType, @Nullable CentipedePartEntity followingPart) 
 	{
 		super(centipede.getType(), centipede.world);
@@ -30,52 +25,6 @@ public class CentipedePartEntity extends Entity
 		this.partType = partType;
 		this.following = followingPart;
 	}
-
-	@Override
-	public void tick() 
-	{
-		System.out.println("Part: " + this.partType + " Position: " + this.getPosX() + ", " + this.getPosY() + ", " + this.getPosZ());
-		super.tick();
-		if (!this.world.isRemote)
-		{
-			double distance = distanceToFollowing();
-			
-			if (distance > 0.5D)
-			{
-				Vec3d position = this.getPositionVec();
-				Vec3d goal = this.partType == "head" ? this.centipede.getPositionVec() : this.following.getPositionVec();
-				Vec3d direction = goal.subtract(position).normalize();
-				Vec3d movementVec = direction.scale(this.centipede.getCurrentMovementSpeed()).scale(0.1D).add(this.getPositionVec());
-				
-				this.setPosition(movementVec.x, movementVec.y, movementVec.z);
-				this.dataManager.set(POS_X, (float)movementVec.x);
-				this.dataManager.set(POS_Y, (float)movementVec.y);
-				this.dataManager.set(POS_Z, (float)movementVec.z);
-				
-				this.dataManager.set(MOVING, true);
-			}
-			else
-			{
-				this.dataManager.set(MOVING, false);
-			}
-		}
-		else
-		{
-			this.setPosition(this.dataManager.get(POS_X), this.dataManager.get(POS_Y), this.dataManager.get(POS_Z));
-		}
-	}
-	
-//	//gets the translation vector between currentPos and prevPos used for rendering
-//	public Vector3d getPartTranslation()
-//	{
-//		if (this.currentPos == null || this.prevPos == null)
-//		{
-//			return new Vector3d(0.0D, 0.0D, 0.0D);
-//		}
-//		return new Vector3d(this.currentPos.getX() - this.prevPos.getX(), 
-//				this.currentPos.getY() - this.prevPos.getY(), 
-//				this.currentPos.getZ() - this.prevPos.getZ());
-//	}
 	
 	public double distanceToFollowing()
 	{
@@ -92,21 +41,6 @@ public class CentipedePartEntity extends Entity
 	public CentipedePartEntity getFollowing()
 	{
 		return this.following;
-	}
-	
-	public Vec3d getPositionFromManager()
-	{
-		return new Vec3d(this.dataManager.get(POS_X), this.dataManager.get(POS_Y), this.dataManager.get(POS_Z));
-	}
-	
-	@Override
-	protected void registerData() 
-	{
-		this.dataManager.register(POS_X, (float)this.getPosX());
-		this.dataManager.register(POS_Y, (float)this.getPosY());
-		this.dataManager.register(POS_Z, (float)this.getPosZ());
-		
-		this.dataManager.register(MOVING, false);
 	}
 
 	@Override
@@ -131,5 +65,16 @@ public class CentipedePartEntity extends Entity
 	public IPacket<?> createSpawnPacket() 
 	{
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	protected void registerData() 
+	{
+		this.dataManager.register(SHOULD_MOVE, false);
+	}
+	
+	public DataParameter<Boolean> shouldMove()
+	{
+		return SHOULD_MOVE;
 	}
 }

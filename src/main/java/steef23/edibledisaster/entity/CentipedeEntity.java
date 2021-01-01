@@ -102,15 +102,28 @@ public class CentipedeEntity extends CreatureEntity
 		this.bodyParts.forEach((part) ->
 		{
 //			part.tick();
-//			System.out.format("Side: %s Part: %s Position: (%.2f, %.2f, %.2f) \n", 
-//					this.world.isRemote ? "Client" : "Server",
-//					part.partType, 
-//					part.getPosX(), part.getPosY(), part.getPosZ());
 			double distance = part.distanceToFollowing();
-			Vec3d position = part.getPositionVec();
+			System.out.format("Side: %s Part: %s Position: (%.2f, %.2f, %.2f) Distance: %.2f \n", 
+					this.world.isRemote ? "Client" : "Server",
+					part.partType, 
+					part.getPosX(), part.getPosY(), part.getPosZ(),
+					distance);
 			
-			if (distance > 0.5D)
+			if (!this.world.isRemote)
 			{
+				if (distance > 0.5D)
+				{
+					part.getDataManager().set(part.shouldMove(), true);
+				}
+				else
+				{
+					part.getDataManager().set(part.shouldMove(), false);
+				}
+			}
+			
+			if (part.getDataManager().get(part.shouldMove()))
+			{
+				Vec3d position = part.getPositionVec();
 				Vec3d goal = part.partType == "head" ? this.getPositionVec() : part.getFollowing().getPositionVec();
 				Vec3d direction = goal.subtract(position).normalize();
 				Vec3d movementVec = direction.scale(this.getCurrentMovementSpeed()).add(part.getPositionVec());
