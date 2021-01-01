@@ -77,6 +77,12 @@ public class CentipedeEntity extends CreatureEntity
 	@Override
 	public void livingTick() 
 	{	
+		super.livingTick();
+		if (world.isRemote)
+		{
+			this.syncPartsToClient();
+		}
+		
 		if (this.firstTick)
 		{
 			this.firstTick = false;
@@ -86,32 +92,41 @@ public class CentipedeEntity extends CreatureEntity
 				part.setPosition(this.getPosX(), this.getPosY(), this.getPosZ());
 			});
 		}
+		
+		Vec3d[] partPosVectors = new Vec3d[this.bodyParts.size()];
+		for (int i = 0; i < partPosVectors.length; i++)
+		{
+			partPosVectors[i] = new Vec3d(this.bodyParts.get(i).getPosX(),this.bodyParts.get(i).getPosY(), this.bodyParts.get(i).getPosZ());
+		}
+
 		this.bodyParts.forEach((part) ->
 		{
 //			part.tick();
-			System.out.format("Side: %s Part: %s Position: (%.2f , %.2f, %.2f) \n", 
-					this.world.isRemote ? "Client" : "Server",
-					part.partType, 
-					part.getPosX(), part.getPosY(), part.getPosZ());
+//			System.out.format("Side: %s Part: %s Position: (%.2f, %.2f, %.2f) \n", 
+//					this.world.isRemote ? "Client" : "Server",
+//					part.partType, 
+//					part.getPosX(), part.getPosY(), part.getPosZ());
 			double distance = part.distanceToFollowing();
+			Vec3d position = part.getPositionVec();
 			
 			if (distance > 0.5D)
 			{
-				Vec3d position = part.getPositionVec();
 				Vec3d goal = part.partType == "head" ? this.getPositionVec() : part.getFollowing().getPositionVec();
 				Vec3d direction = goal.subtract(position).normalize();
-				Vec3d movementVec = direction.scale(this.getCurrentMovementSpeed()).scale(0.1D).add(part.getPositionVec());
+				Vec3d movementVec = direction.scale(this.getCurrentMovementSpeed()).add(part.getPositionVec());
 				
 				part.setPosition(movementVec.x, movementVec.y, movementVec.z);
 			}
 		});
 		
-		if (world.isRemote)
-		{
-			this.syncPartsToClient();
-		}
-		
-		super.livingTick();
+        for(int i = 0; i < this.bodyParts.size(); i++) {
+            this.bodyParts.get(i).prevPosX = partPosVectors[i].x;
+            this.bodyParts.get(i).prevPosY = partPosVectors[i].y;
+            this.bodyParts.get(i).prevPosZ = partPosVectors[i].z;
+            this.bodyParts.get(i).lastTickPosX = partPosVectors[i].x;
+            this.bodyParts.get(i).lastTickPosY = partPosVectors[i].y;
+            this.bodyParts.get(i).lastTickPosZ = partPosVectors[i].z;
+         }
 	}
 	
 	//get parts from the datamanager and put them into the client so they get rendered correctly

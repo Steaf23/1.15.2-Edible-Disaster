@@ -52,7 +52,7 @@ public class CentipedePartModel<T extends CentipedePartEntity> extends EntityMod
 			float red, float green, float blue, float alpha) 
 	{	
 		matrixStackIn.push();
-//		translatePosToStack(matrixStackIn, this.partInstance.getPositionFromManager(), this.partInstance.centipede.getPositionVec());
+		translatePosToStack(matrixStackIn, this.partInstance.getPositionVec(), this.partInstance.centipede.getPositionVec());
 		this.centipedePartBase.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
 		matrixStackIn.pop();
 	}
