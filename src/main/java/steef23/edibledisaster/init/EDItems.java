@@ -1,5 +1,6 @@
 package steef23.edibledisaster.init;
 
+import net.minecraft.item.BucketItem;
 import net.minecraft.item.Item;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
@@ -15,4 +16,7 @@ public class EDItems
 	public static final RegistryObject<CentipedeSpawnEggItem> CENTIPEDE_SPAWN_EGG = ITEMS.register("centipede_spawn_egg", 
 			() -> new CentipedeSpawnEggItem(EDEntityTypes.CENTIPEDE_ENTITY, 0x000000, 0xFFFFFF,
 					new Item.Properties().group(EDItemGroup.instance))); 
+	
+	public static final RegistryObject<BucketItem> B_CHOCOLATE_BUCKET = ITEMS.register("b_chocolate_bucket", 
+			() -> new BucketItem(() -> EDFluids.B_CHOCOLATE_FLUID.get(), new Item.Properties().group(EDItemGroup.instance).maxStackSize(1)));
 }

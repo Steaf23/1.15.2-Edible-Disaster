@@ -47,12 +47,11 @@ public class CentipedePartModel<T extends CentipedePartEntity> extends EntityMod
 		this.partInstance = entityIn;
 	}
 	
-	@Override
 	public void render(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn,
 			float red, float green, float blue, float alpha) 
 	{	
 		matrixStackIn.push();
-		translatePosToStack(matrixStackIn, this.partInstance.getPositionVec(), this.partInstance.centipede.getPositionVec());
+		translatePosToStack(matrixStackIn, this.partInstance.position, this.partInstance.getFollowing() == null ? this.partInstance.centipede.getPositionVec() : this.partInstance.getFollowing().position);
 		this.centipedePartBase.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
 		matrixStackIn.pop();
 	}

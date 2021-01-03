@@ -5,12 +5,14 @@ import java.util.HashMap;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.Vec3d;
 import steef23.edibledisaster.EdibleDisaster;
 import steef23.edibledisaster.client.renderer.entity.model.CentipedePartModel;
 import steef23.edibledisaster.entity.CentipedeEntity;
@@ -30,23 +32,26 @@ public class CentipedeRenderer extends EntityRenderer<CentipedeEntity>
 	public void render(CentipedeEntity entityIn, float entityYaw, float partialTicks, MatrixStack matrixStackIn,
 			IRenderTypeBuffer bufferIn, int packedLightIn) 
 	{
-		ArrayList<CentipedePartEntity> bodyParts = entityIn.getBodyParts();
-		if (this.partModels.size() != bodyParts.size())
+		ArrayList<Pair<CentipedePartEntity, Vec3d>> bodyParts = entityIn.getBodyParts();
+		if (bodyParts != null)
 		{
-			HashMap<CentipedePartEntity, CentipedePartModel<CentipedePartEntity>> tmpModels = new HashMap<CentipedePartEntity, CentipedePartModel<CentipedePartEntity>>();
-			bodyParts.forEach((part) -> 
+			if (this.partModels.size() != bodyParts.size())
 			{
-				tmpModels.put(part, new CentipedePartModel<CentipedePartEntity>(part.partType));
-			});
-			this.partModels = tmpModels;
-		}
+				HashMap<CentipedePartEntity, CentipedePartModel<CentipedePartEntity>> tmpModels = new HashMap<CentipedePartEntity, CentipedePartModel<CentipedePartEntity>>();
+				bodyParts.forEach((part) -> 
+				{
+					tmpModels.put(part.getFirst(), new CentipedePartModel<CentipedePartEntity>(part.getFirst().partType));
+				});
+				this.partModels = tmpModels;
+			}	
 		
-		matrixStackIn.push();
-		partModels.forEach((part, model) -> 
-		{
-			renderPartModel(model, part, partialTicks, matrixStackIn, bufferIn, packedLightIn);
-		});
-		matrixStackIn.pop();
+			matrixStackIn.push();
+			partModels.forEach((part, model) -> 
+			{
+				renderPartModel(model, part, partialTicks, matrixStackIn, bufferIn, packedLightIn);
+			});
+			matrixStackIn.pop();
+		}
 	}
 	
 	@Override

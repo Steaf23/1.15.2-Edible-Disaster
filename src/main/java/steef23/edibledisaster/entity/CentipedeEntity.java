@@ -3,44 +3,31 @@ package steef23.edibledisaster.entity;
 import java.util.ArrayList;
 import java.util.Random;
 
+import com.mojang.datafixers.util.Pair;
+
 import net.minecraft.entity.CreatureEntity;
+import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.goal.MoveTowardsTargetGoal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.monster.ZombieEntity;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 //represents the single headpart / master part
 public class CentipedeEntity extends CreatureEntity
 {
 	private static final double defaultMoveSpeed = 1.0D;
-	private static final DataParameter<Integer> PART_AMOUNT = EntityDataManager.createKey(CentipedeEntity.class, DataSerializers.VARINT);
 	
 	private boolean firstTick = true;
 	
 	//stores body entity ids for easy conversion
-	private ArrayList<CentipedePartEntity> bodyParts;
+	private ArrayList<Pair<CentipedePartEntity, Vec3d>> bodyParts;
 	
 	public CentipedeEntity(EntityType<? extends CentipedeEntity> type, World worldIn) 
 	{
 		super(type, worldIn);
-		this.bodyParts = getNewParts(worldIn);
-	}
-	
-	private ArrayList<CentipedePartEntity> getNewParts(World worldIn)
-	{
-		if (!this.world.isRemote)
-		{
-			this.dataManager.set(PART_AMOUNT, Math.max(4, Math.abs(new Random().nextInt()) % 12));
-		}
-		return getNewPartList();
 	}
 	
 	@Override
@@ -61,13 +48,6 @@ public class CentipedeEntity extends CreatureEntity
 	}
 	
 	@Override
-	protected void registerData() 
-	{
-		super.registerData();
-		this.dataManager.register(PART_AMOUNT, 0);
-	}
-	
-	@Override
 	protected void updateAITasks() 
 	{
 		super.updateAITasks();
@@ -78,97 +58,74 @@ public class CentipedeEntity extends CreatureEntity
 	public void livingTick() 
 	{	
 		super.livingTick();
-		if (world.isRemote)
-		{
-			this.syncPartsToClient();
-		}
 		
 		if (this.firstTick)
 		{
 			this.firstTick = false;
-			
-			this.bodyParts.forEach((part) ->
-			{
-				part.setPosition(this.getPosX(), this.getPosY(), this.getPosZ());
-			});
+			this.bodyParts = getNewPartList();
 		}
 		
-		Vec3d[] partPosVectors = new Vec3d[this.bodyParts.size()];
-		for (int i = 0; i < partPosVectors.length; i++)
-		{
-			partPosVectors[i] = new Vec3d(this.bodyParts.get(i).getPosX(),this.bodyParts.get(i).getPosY(), this.bodyParts.get(i).getPosZ());
-		}
+//		Vec3d[] partPosVectors = new Vec3d[this.bodyParts.size()];
+//		for (int i = 0; i < partPosVectors.length; i++)
+//		{
+//			partPosVectors[i] = new Vec3d(this.bodyParts.get(i).getFirst().getPosX(),this.bodyParts.get(i).getFirst().getPosY(), this.bodyParts.get(i).getFirst().getPosZ());
+//		}
 
-		this.bodyParts.forEach((part) ->
+		for (int i = 0; i < this.bodyParts.size(); i++)
 		{
-//			part.tick();
-			double distance = part.distanceToFollowing();
-			System.out.format("Side: %s Part: %s Position: (%.2f, %.2f, %.2f) Distance: %.2f \n", 
-					this.world.isRemote ? "Client" : "Server",
-					part.partType, 
-					part.getPosX(), part.getPosY(), part.getPosZ(),
-					distance);
-			
-			if (!this.world.isRemote)
+			CentipedePartEntity part = this.bodyParts.get(i).getFirst();
+			Vec3d currentPos = this.bodyParts.get(i).getSecond();
+			Vec3d followingPos = i <= 0 ? this.getPositionVec() : this.bodyParts.get(i - 1).getSecond();
+			double distance = followingPos.distanceTo(currentPos);
+			if (i == 0) System.out.format("Side: %s, Distance: %.2f \n", this.world.isRemote ? "Client" : "Server", distance);
+			if (distance >= 1.0D)
 			{
-				if (distance > 0.5D)
-				{
-					part.getDataManager().set(part.shouldMove(), true);
-				}
-				else
-				{
-					part.getDataManager().set(part.shouldMove(), false);
-				}
-			}
-			
-			if (part.getDataManager().get(part.shouldMove()))
-			{
-				Vec3d position = part.getPositionVec();
-				Vec3d goal = part.partType == "head" ? this.getPositionVec() : part.getFollowing().getPositionVec();
-				Vec3d direction = goal.subtract(position).normalize();
-				Vec3d movementVec = direction.scale(this.getCurrentMovementSpeed()).add(part.getPositionVec());
+				//direction from the following position to the currentPosition
+				Vec3d direction = followingPos.subtract(currentPos).normalize();
+				Vec3d targetPos = direction.scale(distance - 1.0D).add(currentPos);
+				part.position = targetPos;
 				
-				part.setPosition(movementVec.x, movementVec.y, movementVec.z);
+				//target pos should always be the entityPos - .5 when it gets over
+				this.bodyParts.set(i, Pair.of(part, targetPos));
 			}
-		});
-		
-        for(int i = 0; i < this.bodyParts.size(); i++) {
-            this.bodyParts.get(i).prevPosX = partPosVectors[i].x;
-            this.bodyParts.get(i).prevPosY = partPosVectors[i].y;
-            this.bodyParts.get(i).prevPosZ = partPosVectors[i].z;
-            this.bodyParts.get(i).lastTickPosX = partPosVectors[i].x;
-            this.bodyParts.get(i).lastTickPosY = partPosVectors[i].y;
-            this.bodyParts.get(i).lastTickPosZ = partPosVectors[i].z;
-         }
+//			System.out.format("Side: %s Part: %s Position: (%.2f, %.2f, %.2f) Distance: %.2f \n", 
+//					this.world.isRemote ? "Client" : "Server",
+//					part.partType, 
+//					part.getPosX(), part.getPosY(), part.getPosZ(),
+//					distance);
+		}
+//        for(int i = 0; i < this.bodyParts.size(); i++) {
+//            this.bodyParts.get(i).getFirst().prevPosX = partPosVectors[i].x;
+//            this.bodyParts.get(i).getFirst().prevPosY = partPosVectors[i].y;
+//            this.bodyParts.get(i).getFirst().prevPosZ = partPosVectors[i].z;
+//            this.bodyParts.get(i).getFirst().lastTickPosX = partPosVectors[i].x;
+//            this.bodyParts.get(i).getFirst().lastTickPosY = partPosVectors[i].y;
+//            this.bodyParts.get(i).getFirst().lastTickPosZ = partPosVectors[i].z;
+//         }
 	}
 	
-	//get parts from the datamanager and put them into the client so they get rendered correctly
-	@OnlyIn(Dist.CLIENT)
-	public void syncPartsToClient()
+	public ArrayList<Pair<CentipedePartEntity, Vec3d>> getNewPartList()
 	{
-		//get parts from server
-		//if client_parts != manager_parts + head
-		if (this.bodyParts.size() != this.dataManager.get(PART_AMOUNT) + 1)
-		{
-			this.bodyParts = this.getNewPartList();
-		}
-	}
-	
-	public ArrayList<CentipedePartEntity> getNewPartList()
-	{
-		ArrayList<CentipedePartEntity> parts = new ArrayList<>();
+		ArrayList<Pair<CentipedePartEntity, Vec3d>> parts = new ArrayList<>();
+		EntitySize entitySize = EntitySize.flexible(1.0f, 1.0f);
 		
-		CentipedePartEntity head = new CentipedePartEntity(this, "head", null);
-		parts.add(head);
-		for(int i = 0; i < this.dataManager.get(PART_AMOUNT); i++)
+		CentipedePartEntity head = new CentipedePartEntity(this, "head", entitySize, null);
+		parts.add(Pair.of(head, new Vec3d(this.getPosX(), this.getPosY(), this.getPosZ())));
+		head.position = new Vec3d(this.getPosX(), this.getPosY(), this.getPosZ());
+		
+		int count = Math.max(4, Math.abs(new Random().nextInt()) % 12);
+		
+		for(int i = 0; i < count; i++)
 		{
-			CentipedePartEntity part = new CentipedePartEntity(this, "body", parts.get(i));
-			parts.add(part);
+			CentipedePartEntity part = new CentipedePartEntity(this, "body", entitySize, parts.get(i).getFirst());
+			part.position = new Vec3d(this.getPosX(), this.getPosY(), this.getPosZ());
+			parts.add(Pair.of(part, new Vec3d(this.getPosX(), this.getPosY(), this.getPosZ())));
 		}
+		
 		System.out.println("Server side?: "  + !this.world.isRemote);
 		parts.forEach((part) ->
 		{
-			System.out.println("part: " + part.partType);
+			System.out.println("part: " + part.getFirst().partType);
 		});
 		
 		return parts;
@@ -205,7 +162,7 @@ public class CentipedeEntity extends CreatureEntity
 //		this.body = parts;
 //	}
 	
-	public ArrayList<CentipedePartEntity> getBodyParts()
+	public ArrayList<Pair<CentipedePartEntity, Vec3d>> getBodyParts()
 	{
 		return this.bodyParts;
 	}

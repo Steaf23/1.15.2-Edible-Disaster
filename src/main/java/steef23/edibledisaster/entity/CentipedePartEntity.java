@@ -3,27 +3,34 @@ package steef23.edibledisaster.entity;
 import javax.annotation.Nullable;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntitySize;
+import net.minecraft.entity.Pose;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.math.Vec3d;
 
 //represents a single body part
 public class CentipedePartEntity extends Entity
 {
 	public final CentipedeEntity centipede;
 	public final String partType;
+	private final EntitySize size;
 	private final CentipedePartEntity following;
+	public Vec3d position;
 	
 	private static final DataParameter<Boolean> SHOULD_MOVE = EntityDataManager.createKey(CentipedeEntity.class, DataSerializers.BOOLEAN);
 		
-	public CentipedePartEntity(CentipedeEntity centipede, String partType, @Nullable CentipedePartEntity followingPart) 
+	public CentipedePartEntity(CentipedeEntity centipede, String partType, EntitySize size, @Nullable CentipedePartEntity followingPart) 
 	{
 		super(centipede.getType(), centipede.world);
 		this.centipede = centipede;
 		this.partType = partType;
+		this.size = size;
 		this.following = followingPart;
+		this.recalculateSize();
 	}
 	
 	public double distanceToFollowing()
@@ -76,5 +83,11 @@ public class CentipedePartEntity extends Entity
 	public DataParameter<Boolean> shouldMove()
 	{
 		return SHOULD_MOVE;
+	}
+	
+	@Override
+	public EntitySize getSize(Pose poseIn) 
+	{
+		return this.size;
 	}
 }
