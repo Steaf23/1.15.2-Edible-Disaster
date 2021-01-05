@@ -1,0 +1,6 @@
+{
+		"parent": "block/cube_all",
+	"textures": {
+		"all": "edibledisaster:block/b_chocolate_block_polished"
+	}
+}

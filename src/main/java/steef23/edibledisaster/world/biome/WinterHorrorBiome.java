@@ -8,7 +8,6 @@ public class WinterHorrorBiome extends Biome
 	public WinterHorrorBiome(Builder biomeBuilder) 
 	{
 		super(biomeBuilder);
-//		this.addSpawn(EntityClassification.CREATURE, new SpawnListEntry(EDEntityTypes.CENTIPEDE_ENTITY.get(), 10, 2, 10));
 	}
 	
 	@Override

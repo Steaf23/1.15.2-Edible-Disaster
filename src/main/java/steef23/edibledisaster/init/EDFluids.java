@@ -15,6 +15,7 @@ public class EDFluids
 {
 	public static final ResourceLocation B_CHOCOLATE_STILL_RL = new ResourceLocation(EdibleDisaster.MOD_ID, "block/b_chocolate_still");
 	public static final ResourceLocation B_CHOCOLATE_FLOWING_RL = new ResourceLocation(EdibleDisaster.MOD_ID, "block/b_chocolate_flowing");
+	public static final ResourceLocation B_CHOCOLATE_OVERLAY_RL = new ResourceLocation(EdibleDisaster.MOD_ID, "block/b_chocolate_overlay"); 
 
 	public static final DeferredRegister<Fluid> FLUIDS = new DeferredRegister<Fluid>(ForgeRegistries.FLUIDS, EdibleDisaster.MOD_ID);
 	
@@ -27,6 +28,6 @@ public class EDFluids
 	public static final ForgeFlowingFluid.Properties B_CHOCOLATE_PROPERTIES = new ForgeFlowingFluid.Properties(
 			() -> B_CHOCOLATE_FLUID.get(), 
 			() -> B_CHOCOLATE_FLOWING.get(), 
-			FluidAttributes.builder(B_CHOCOLATE_STILL_RL, B_CHOCOLATE_FLOWING_RL).density(5).luminosity(10).rarity(Rarity.RARE))
+			FluidAttributes.builder(B_CHOCOLATE_STILL_RL, B_CHOCOLATE_FLOWING_RL).density(5).luminosity(10).overlay(B_CHOCOLATE_OVERLAY_RL).rarity(Rarity.RARE))
 			.bucket(() -> EDItems.B_CHOCOLATE_BUCKET.get()).block(() -> EDBlocks.B_CHOCOLATE.get());
 }

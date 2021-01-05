@@ -1,0 +1,6 @@
+{
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "edibledisaster:item/b_chocolate_bucket"
+	}
+}

@@ -10,6 +10,8 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -24,6 +26,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.IForgeRegistry;
 import steef23.edibledisaster.init.EDBiomes;
 import steef23.edibledisaster.init.EDBlocks;
+import steef23.edibledisaster.init.EDDimensions;
 import steef23.edibledisaster.init.EDEntityTypes;
 import steef23.edibledisaster.init.EDFluids;
 import steef23.edibledisaster.init.EDItems;
@@ -36,10 +39,11 @@ import steef23.edibledisaster.item.CentipedeSpawnEggItem;
 @Mod.EventBusSubscriber(modid = EdibleDisaster.MOD_ID, bus=Bus.MOD)
 public class EdibleDisaster
 {
-	@SuppressWarnings("unused")
-	private static final Logger LOGGER = LogManager.getLogger();
+	public static final Logger LOGGER = LogManager.getLogger();
 	public static final String MOD_ID = "edibledisaster";
 	public static EdibleDisaster instance;
+	
+	public static final ResourceLocation WINTER_DIM_TYPE = new ResourceLocation(MOD_ID, "winter");
 	
 	public EdibleDisaster()
 	{
@@ -55,6 +59,7 @@ public class EdibleDisaster
         EDEntityTypes.ENTITY_TYPES.register(modEventBus);
         EDPotionTypes.POTION_TYPES.register(modEventBus);
         EDBiomes.BIOMES.register(modEventBus);
+        EDDimensions.DIMENSIONS.register(modEventBus);
         
         instance = this;
         MinecraftForge.EVENT_BUS.register(this);
@@ -80,7 +85,25 @@ public class EdibleDisaster
 
     private void setup(final FMLCommonSetupEvent event)
     {
-
+    	EDEntityTypes.registerPlacementTypes();
+    	registerEntityWorldSpawn(EDEntityTypes.CENTIPEDE_ENTITY.get(), 15, 1, 2, EDBiomes.WINTER_BIOME.get());
+    }
+    
+    public void registerEntityWorldSpawn(EntityType<?> entity, int weight, int minGroupIn, int maxGroupIn, Biome... biomes)
+    {
+    	for (Biome biome : biomes)
+    	{
+    		if (biome != null)
+    		{
+    			biome.getSpawns(entity.getClassification()).add(new Biome.SpawnListEntry(entity, weight, minGroupIn, maxGroupIn));
+    		}
+    	}
+    }
+    
+    @SubscribeEvent
+    public static void onRegisterBiomes(final RegistryEvent.Register<Biome> event)
+    {
+    	EDBiomes.registerBiomes();
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) 
