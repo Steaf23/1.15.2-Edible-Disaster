@@ -32,7 +32,7 @@ public class EDBiomes
 							new SurfaceBuilderConfig(Blocks.COARSE_DIRT.getDefaultState(),
 									Blocks.DIRT.getDefaultState(),
 									Blocks.DIRT.getDefaultState())))
-					.precipitation(RainType.RAIN).category(Category.NONE).depth(0.1f).scale(0.4f).temperature(1.0f).downfall(1.0f).waterColor(0x000000).waterFogColor(0xFFFFFF).parent(null)));
+					.precipitation(RainType.RAIN).category(Category.NONE).depth(0.1f).scale(0.4f).temperature(1.0f).downfall(1.0f).waterColor(0x000000).waterFogColor(0x461917).parent(null)));
 	
 	public static void registerBiomes()
 	{

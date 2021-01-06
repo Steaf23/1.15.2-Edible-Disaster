@@ -40,13 +40,14 @@ public class ChocolateBlock extends Block
 		
 		Block fluid = EDBlocks.CHOCOLATE.get();
 		Block solid = EDBlocks.CHOCOLATE_BLOCK.get();
-		
+		boolean isLitUp = worldIn.getLightFor(LightType.BLOCK, pos) > 13;
+				
 		boolean isSurrounded = (north == fluid || north == solid) &&
 							   (east == fluid || east == solid) &&
 							   (south == fluid || south == solid) &&
 							   (west == fluid || west == solid) &&
 							   (down == solid) && (up == fluid);
 
-		return isSurrounded || worldIn.dimension.doesWaterVaporize() || worldIn.getLightFor(LightType.BLOCK, pos) > 13 - state.getOpacity(worldIn, pos);
+		return isSurrounded || worldIn.dimension.doesWaterVaporize() || isLitUp;
 	}
 }
