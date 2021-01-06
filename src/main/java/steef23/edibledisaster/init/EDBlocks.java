@@ -10,6 +10,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import steef23.edibledisaster.EdibleDisaster;
 import steef23.edibledisaster.block.BloodChocolateBlock;
 import steef23.edibledisaster.block.FluidPumpBlock;
+import steef23.edibledisaster.block.WinterPortalBlock;
 
 public class EDBlocks 
 {
@@ -24,4 +25,7 @@ public class EDBlocks
 	public static final RegistryObject<FlowingFluidBlock> B_CHOCOLATE = BLOCKS.register("b_chocolate", 
 			() -> new FlowingFluidBlock(() -> EDFluids.B_CHOCOLATE_FLUID.get(), Block.Properties.create(Material.WATER)
 					.doesNotBlockMovement().hardnessAndResistance(100.0f).noDrops()));
+	
+	public static final RegistryObject<Block> WINTER_PORTAL = BLOCKS.register("winter_portal", 
+			() -> new WinterPortalBlock(Block.Properties.from(Blocks.END_PORTAL)));
 }

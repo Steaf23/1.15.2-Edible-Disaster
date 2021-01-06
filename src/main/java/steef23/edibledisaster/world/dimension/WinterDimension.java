@@ -93,9 +93,9 @@ public class WinterDimension extends Dimension
 		return 256;
 	}
 	
-	@Override
-	public IRenderHandler getWeatherRenderer() 
-	{
-		return weatherHandler;
-	}
+//	@Override
+//	public IRenderHandler getWeatherRenderer() 
+//	{
+//		return weatherHandler;
+//	}
 }

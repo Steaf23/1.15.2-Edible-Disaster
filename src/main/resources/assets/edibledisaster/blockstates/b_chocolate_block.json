@@ -1,6 +1,5 @@
 {
 	"variants": {
-		"polished=false": { "model": "edibledisaster:block/b_chocolate_block" },
-		"polished=true": { "model": "edibledisaster:block/b_chocolate_block_polished"}
+		"": { "model": "edibledisaster:block/b_chocolate_block" }
 	}
 }

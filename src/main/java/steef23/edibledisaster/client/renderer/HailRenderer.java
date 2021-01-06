@@ -4,6 +4,7 @@ import java.util.Random;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
@@ -12,7 +13,8 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
+import net.minecraft.world.ILightReader;
+import net.minecraft.world.LightType;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.Heightmap;
 import net.minecraftforge.client.IRenderHandler;
@@ -20,19 +22,41 @@ import steef23.edibledisaster.EdibleDisaster;
 
 public class HailRenderer implements IRenderHandler 
 {
-	public static final ResourceLocation HAIL_TEXTURES = new ResourceLocation(EdibleDisaster.MOD_ID,
-			"textures/environment/hail.png");
-
+	public static final ResourceLocation HAIL_TEXTURES = new ResourceLocation(EdibleDisaster.MOD_ID, "textures/environment/hail.png");
+	
+	private final float[] hailSizeX = new float[1024];
+	private final float[] hailSizeZ = new float[1024];
+	
+	public HailRenderer() 
+	{
+		for(int x = 0; x < 32; ++x) 
+		{
+			for(int z = 0; x < 32; ++x) 
+			{
+				float f = (float)(z - 16);
+	            float f1 = (float)(x - 16);
+	            float f2 = MathHelper.sqrt(f * f + f1 * f1);
+	            this.hailSizeX[x << 5 | z] = -f1 / f2;
+	            this.hailSizeZ[x << 5 | z] = f / f2;
+	        }
+		}
+	}
+	
+	@SuppressWarnings("deprecation")
 	@Override
-	public void render(int ticks, float partialTicks, ClientWorld world, Minecraft mc) {
-		Tessellator tessellator = Tessellator.getInstance();
-		BufferBuilder bufferBuilder = tessellator.getBuffer();
-		if (!(f <= 0.0F)) {
-			lightmapIn.enableLightmap();
-			World world = this.mc.world;
-			int i = MathHelper.floor(xIn);
-			int j = MathHelper.floor(yIn);
-			int k = MathHelper.floor(zIn);
+	public void render(int ticks, float partialTicks, ClientWorld world, Minecraft mc) 
+	{
+		float xIn = 0.0f;
+		float yIn = 100.0f;
+		float zIn = 0.0f;
+		
+		float rainStrength = world.getRainStrength(partialTicks);
+		if (rainStrength > 0.0F) 
+		{
+//			lightmapIn.enableLightmap();
+			int posX = MathHelper.floor(xIn);
+			int posY = MathHelper.floor(yIn);
+			int posZ = MathHelper.floor(zIn);
 			Tessellator tessellator = Tessellator.getInstance();
 			BufferBuilder bufferbuilder = tessellator.getBuffer();
 			RenderSystem.disableCull();
@@ -40,137 +64,122 @@ public class HailRenderer implements IRenderHandler
 			RenderSystem.enableBlend();
 			RenderSystem.defaultBlendFunc();
 			RenderSystem.defaultAlphaFunc();
-			int l = 5;
-			if (this.mc.gameSettings.fancyGraphics) {
-				l = 10;
+			int renderRange = 5;
+			if (mc.gameSettings.fancyGraphics) 
+			{
+				renderRange = 10;
 			}
-
-			int i1 = -1;
-			float f1 = (float) this.ticks + partialTicks;
+			
+			// tessellator only has to be started once depending on weather (rain or snow) 
+			int startTessellator = -1;
 			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 			BlockPos.Mutable blockpos$mutable = new BlockPos.Mutable();
-
-			for (int j1 = k - l; j1 <= k + l; ++j1) {
-				for (int k1 = i - l; k1 <= i + l; ++k1) {
-					int l1 = (j1 - k + 16) * 32 + k1 - i + 16;
-					double d0 = (double) this.rainSizeX[l1] * 0.5D;
-					double d1 = (double) this.rainSizeZ[l1] * 0.5D;
-					blockpos$mutable.setPos(k1, 0, j1);
+			
+			//loop through a square grid with origin at (posZ,posX)
+			for (int gridZ = posZ - renderRange; gridZ <= posZ + renderRange; ++gridZ) 
+			{
+				for (int gridX = posX - renderRange; gridX <= posX + renderRange; ++gridX) 
+				{
+					int l1 = (gridZ - posZ + 16) * 32 + gridX - posX + 16;
+					double d0 = (double) this.hailSizeX[l1] * 0.5D;
+					double d1 = (double) this.hailSizeZ[l1] * 0.5D;
+					blockpos$mutable.setPos(gridX, 0, gridZ);
 					Biome biome = world.getBiome(blockpos$mutable);
-					if (biome.getPrecipitation() != Biome.RainType.NONE) {
-						int i2 = world.getHeight(Heightmap.Type.MOTION_BLOCKING, blockpos$mutable).getY();
-						int j2 = j - l;
-						int k2 = j + l;
-						if (j2 < i2) {
-							j2 = i2;
+					if (biome.getPrecipitation() != Biome.RainType.NONE) 
+					{
+						int maxRenderHeight = world.getHeight(Heightmap.Type.MOTION_BLOCKING, blockpos$mutable).getY();
+						int lowerRenderBound = posY - renderRange;
+						int upperRenderBound = posY + renderRange;
+						if (lowerRenderBound < maxRenderHeight) 
+						{
+							lowerRenderBound = maxRenderHeight;
 						}
 
-						if (k2 < i2) {
-							k2 = i2;
+						if (upperRenderBound < maxRenderHeight) 
+						{
+							upperRenderBound = maxRenderHeight;
+						}
+						
+						int newMaxRenderHeight = maxRenderHeight;
+						if (maxRenderHeight < posY) 
+						{
+							newMaxRenderHeight = posY;
 						}
 
-						int l2 = i2;
-						if (i2 < j) {
-							l2 = j;
-						}
-
-						if (j2 != k2) {
+						if (lowerRenderBound != upperRenderBound) 
+						{
 							Random random = new Random(
-									(long) (k1 * k1 * 3121 + k1 * 45238971 ^ j1 * j1 * 418711 + j1 * 13761));
-							blockpos$mutable.setPos(k1, j2, j1);
-							float f2 = biome.getTemperature(blockpos$mutable);
-							if (f2 >= 0.15F) {
-								if (i1 != 0) {
-									if (i1 >= 0) {
-										tessellator.draw();
-									}
-
-									i1 = 0;
-									this.mc.getTextureManager().bindTexture(RAIN_TEXTURES);
-									bufferbuilder.begin(7, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
+									(long) (gridX * gridX * 3121 + gridX * 45238971 ^ gridZ * gridZ * 418711 + gridZ * 13761));
+							blockpos$mutable.setPos(gridX, lowerRenderBound, gridZ);
+							if (startTessellator != 0) 
+							{
+								if (startTessellator >= 0) 
+								{
+									tessellator.draw();
 								}
 
-								int i3 = this.ticks + k1 * k1 * 3121 + k1 * 45238971 + j1 * j1 * 418711 + j1 * 13761
-										& 31;
-								float f3 = -((float) i3 + partialTicks) / 32.0F * (3.0F + random.nextFloat());
-								double d2 = (double) ((float) k1 + 0.5F) - xIn;
-								double d4 = (double) ((float) j1 + 0.5F) - zIn;
-								float f4 = MathHelper.sqrt(d2 * d2 + d4 * d4) / (float) l;
-								float f5 = ((1.0F - f4 * f4) * 0.5F + 0.5F) * f;
-								blockpos$mutable.setPos(k1, l2, j1);
-								int j3 = getCombinedLight(world, blockpos$mutable);
-								bufferbuilder
-										.pos((double) k1 - xIn - d0 + 0.5D, (double) k2 - yIn,
-												(double) j1 - zIn - d1 + 0.5D)
-										.tex(0.0F, (float) j2 * 0.25F + f3).color(1.0F, 1.0F, 1.0F, f5).lightmap(j3)
-										.endVertex();
-								bufferbuilder
-										.pos((double) k1 - xIn + d0 + 0.5D, (double) k2 - yIn,
-												(double) j1 - zIn + d1 + 0.5D)
-										.tex(1.0F, (float) j2 * 0.25F + f3).color(1.0F, 1.0F, 1.0F, f5).lightmap(j3)
-										.endVertex();
-								bufferbuilder
-										.pos((double) k1 - xIn + d0 + 0.5D, (double) j2 - yIn,
-												(double) j1 - zIn + d1 + 0.5D)
-										.tex(1.0F, (float) k2 * 0.25F + f3).color(1.0F, 1.0F, 1.0F, f5).lightmap(j3)
-										.endVertex();
-								bufferbuilder
-										.pos((double) k1 - xIn - d0 + 0.5D, (double) j2 - yIn,
-												(double) j1 - zIn - d1 + 0.5D)
-										.tex(0.0F, (float) k2 * 0.25F + f3).color(1.0F, 1.0F, 1.0F, f5).lightmap(j3)
-										.endVertex();
-							} else {
-								if (i1 != 1) {
-									if (i1 >= 0) {
-										tessellator.draw();
-									}
-
-									i1 = 1;
-									this.mc.getTextureManager().bindTexture(SNOW_TEXTURES);
-									bufferbuilder.begin(7, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
-								}
-
-								float f6 = -((float) (this.ticks & 511) + partialTicks) / 512.0F;
-								float f7 = (float) (random.nextDouble()
-										+ (double) f1 * 0.01D * (double) ((float) random.nextGaussian()));
-								float f8 = (float) (random.nextDouble()
-										+ (double) (f1 * (float) random.nextGaussian()) * 0.001D);
-								double d3 = (double) ((float) k1 + 0.5F) - xIn;
-								double d5 = (double) ((float) j1 + 0.5F) - zIn;
-								float f9 = MathHelper.sqrt(d3 * d3 + d5 * d5) / (float) l;
-								float f10 = ((1.0F - f9 * f9) * 0.3F + 0.5F) * f;
-								blockpos$mutable.setPos(k1, l2, j1);
-								int k3 = getCombinedLight(world, blockpos$mutable);
-								int l3 = k3 >> 16 & '\uffff';
-								int i4 = (k3 & '\uffff') * 3;
-								int j4 = (l3 * 3 + 240) / 4;
-								int k4 = (i4 * 3 + 240) / 4;
-								bufferbuilder
-										.pos((double) k1 - xIn - d0 + 0.5D, (double) k2 - yIn,
-												(double) j1 - zIn - d1 + 0.5D)
-										.tex(0.0F + f7, (float) j2 * 0.25F + f6 + f8).color(1.0F, 1.0F, 1.0F, f10)
-										.lightmap(k4, j4).endVertex();
-								bufferbuilder
-										.pos((double) k1 - xIn + d0 + 0.5D, (double) k2 - yIn,
-												(double) j1 - zIn + d1 + 0.5D)
-										.tex(1.0F + f7, (float) j2 * 0.25F + f6 + f8).color(1.0F, 1.0F, 1.0F, f10)
-										.lightmap(k4, j4).endVertex();
-								bufferbuilder
-										.pos((double) k1 - xIn + d0 + 0.5D, (double) j2 - yIn,
-												(double) j1 - zIn + d1 + 0.5D)
-										.tex(1.0F + f7, (float) k2 * 0.25F + f6 + f8).color(1.0F, 1.0F, 1.0F, f10)
-										.lightmap(k4, j4).endVertex();
-								bufferbuilder
-										.pos((double) k1 - xIn - d0 + 0.5D, (double) j2 - yIn,
-												(double) j1 - zIn - d1 + 0.5D)
-										.tex(0.0F + f7, (float) k2 * 0.25F + f6 + f8).color(1.0F, 1.0F, 1.0F, f10)
-										.lightmap(k4, j4).endVertex();
+								startTessellator = 0;
+								mc.getTextureManager().bindTexture(HAIL_TEXTURES);
+								bufferbuilder.begin(7, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
 							}
+
+							int i3 = ticks + gridX * gridX * 3121 + gridX * 45238971 + gridZ * gridZ * 418711 + gridZ * 13761
+									& 31;
+							float f3 = -((float) i3 + partialTicks) / 32.0F * (3.0F + random.nextFloat());
+							double d2 = (double) ((float) gridX + 0.5F) - xIn;
+							double d4 = (double) ((float) gridZ + 0.5F) - zIn;
+							float f4 = MathHelper.sqrt(d2 * d2 + d4 * d4) / (float) renderRange;
+							float f5 = ((1.0F - f4 * f4) * 0.5F + 0.5F) * rainStrength;
+							blockpos$mutable.setPos(gridX, newMaxRenderHeight, gridZ);
+							int combinedLight = getCombinedLight(world, blockpos$mutable);
+							bufferbuilder.pos((double) gridX - xIn - d0 + 0.5D, (double) upperRenderBound - yIn, (double) gridZ - zIn - d1 + 0.5D)
+									.tex(0.0F, (float) lowerRenderBound * 0.25F + f3).color(1.0F, 1.0F, 1.0F, f5).lightmap(combinedLight)
+									.endVertex();
+							bufferbuilder.pos((double) gridX - xIn + d0 + 0.5D, (double) upperRenderBound - yIn, (double) gridZ - zIn + d1 + 0.5D)
+									.tex(1.0F, (float) lowerRenderBound * 0.25F + f3).color(1.0F, 1.0F, 1.0F, f5).lightmap(combinedLight)
+									.endVertex();
+							bufferbuilder.pos((double) gridX - xIn + d0 + 0.5D, (double) lowerRenderBound - yIn, (double) gridZ - zIn + d1 + 0.5D)
+									.tex(1.0F, (float) upperRenderBound * 0.25F + f3).color(1.0F, 1.0F, 1.0F, f5).lightmap(combinedLight)
+									.endVertex();
+							bufferbuilder.pos((double) gridX - xIn - d0 + 0.5D, (double) lowerRenderBound - yIn, (double) gridZ - zIn - d1 + 0.5D)
+									.tex(0.0F, (float) upperRenderBound * 0.25F + f3).color(1.0F, 1.0F, 1.0F, f5).lightmap(combinedLight)
+									.endVertex();
 						}
 					}
 				}
 			}
+			if (startTessellator >= 0) 
+			{
+				tessellator.draw();
+	        }
+
+	        RenderSystem.enableCull();
+	        RenderSystem.disableBlend();
+	        RenderSystem.defaultAlphaFunc();
+//	        lightmapIn.disableLightmap();
 		}
-		mc.getTextureManager().bindTexture(HAIL_TEXTURES);
+	}
+	
+	public static int getCombinedLight(ILightReader lightReaderIn, BlockPos blockPosIn) 
+	{
+		return getPackedLightmapCoords(lightReaderIn, lightReaderIn.getBlockState(blockPosIn), blockPosIn);
+	}
+
+	public static int getPackedLightmapCoords(ILightReader lightReaderIn, BlockState blockStateIn, BlockPos blockPosIn) {
+		if (blockStateIn.isEmissiveRendering()) 
+		{
+			return 15728880;
+	    } 
+		else 
+		{
+			int i = lightReaderIn.getLightFor(LightType.SKY, blockPosIn);
+	        int j = lightReaderIn.getLightFor(LightType.BLOCK, blockPosIn);
+	        int k = blockStateIn.getLightValue(lightReaderIn, blockPosIn);
+	        if (j < k) 
+	        {
+	        	j = k;
+	        }
+	        return i << 20 | j << 4;
+		}
 	}
 }
