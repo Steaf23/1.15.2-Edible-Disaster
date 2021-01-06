@@ -1,0 +1,5 @@
+{
+	"variants": {
+		"": { "model": "wintercomp:block/fluid_pump" }
+	}
+}
