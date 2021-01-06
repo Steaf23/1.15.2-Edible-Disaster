@@ -9,11 +9,14 @@ import net.minecraft.world.World;
 import net.minecraft.world.dimension.Dimension;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.ChunkGenerator;
+import net.minecraftforge.client.IRenderHandler;
+import steef23.edibledisaster.client.renderer.HailRenderer;
 import steef23.edibledisaster.init.EDBlocks;
 
 public class WinterDimension extends Dimension
 {
-
+	public static final HailRenderer weatherHandler = new HailRenderer();
+	
 	public WinterDimension(World worldIn, DimensionType typeIn) 
 	{
 		super(worldIn, typeIn, 0.0f);
@@ -88,5 +91,11 @@ public class WinterDimension extends Dimension
 	public int getActualHeight() 
 	{
 		return 256;
+	}
+	
+	@Override
+	public IRenderHandler getWeatherRenderer() 
+	{
+		return weatherHandler;
 	}
 }
