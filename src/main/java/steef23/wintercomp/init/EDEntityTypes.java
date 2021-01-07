@@ -11,6 +11,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import steef23.wintercomp.WinterComp;
 import steef23.wintercomp.entity.CentipedeEntity;
+import steef23.wintercomp.entity.ChocolateGolemEntity;
 
 public class EDEntityTypes 
 {	
@@ -22,6 +23,12 @@ public class EDEntityTypes
 					() -> EntityType.Builder.<CentipedeEntity>create(CentipedeEntity::new, EntityClassification.CREATURE)
 					.size(1.0f, 1.0f)
 					.build(new ResourceLocation(WinterComp.MOD_ID, "centipede_entity").toString()));
+	
+	public static final RegistryObject<EntityType<ChocolateGolemEntity>> CHOCOLATE_GOLEM_ENTITY = ENTITY_TYPES
+			.register("chocolate_golem", 
+					() -> EntityType.Builder.<ChocolateGolemEntity>create(ChocolateGolemEntity::new, EntityClassification.MONSTER)
+					.size(4.0f, 4.0f)
+					.build(new ResourceLocation(WinterComp.MOD_ID, "chocolate_golem").toString()));
 	
 	public static void registerPlacementTypes()
 	{

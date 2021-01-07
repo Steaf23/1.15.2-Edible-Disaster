@@ -10,6 +10,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import steef23.wintercomp.WinterComp;
 import steef23.wintercomp.client.renderer.entity.CentipedeRenderer;
+import steef23.wintercomp.client.renderer.entity.ChocolateGolemRenderer;
 import steef23.wintercomp.init.EDEntityTypes;
 import steef23.wintercomp.init.EDFluids;
 
@@ -20,6 +21,7 @@ public class ClientEventBusSubscriber
 	public static void clientSetup(FMLClientSetupEvent event)
 	{
 		RenderingRegistry.registerEntityRenderingHandler(EDEntityTypes.CENTIPEDE_ENTITY.get(), CentipedeRenderer::new);
+		RenderingRegistry.registerEntityRenderingHandler(EDEntityTypes.CHOCOLATE_GOLEM_ENTITY.get(), ChocolateGolemRenderer::new);
 		RenderTypeLookup.setRenderLayer(EDFluids.CHOCOLATE_FLUID.get(), RenderType.getTranslucent());
 		RenderTypeLookup.setRenderLayer(EDFluids.CHOCOLATE_FLOWING.get(), RenderType.getTranslucent());
 	}

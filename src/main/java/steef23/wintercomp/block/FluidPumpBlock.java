@@ -35,7 +35,7 @@ public class FluidPumpBlock extends Block
 	@SuppressWarnings("unused")
 	private final Supplier<TileEntityType<? extends FluidPumpTileEntity>> tileEntityTypeSupplier;
 	
-	private static final VoxelShape SHAPE_LOWER = Block.makeCuboidShape(4.0D, 0.0D, 4.0D, 12.0D, 3.0D, 12.0D);
+	private static final VoxelShape SHAPE_LOWER = Block.makeCuboidShape(4.0D, 0.0D, 4.0D, 12.0D, 4.0D, 12.0D);
 	private static final VoxelShape SHAPE_UPPER = Block.makeCuboidShape(0.0D, 4.0D, 0.0D, 16.0D, 16.0D, 16.0D);
 	private static final VoxelShape SHAPE_COMBINED = VoxelShapes.combineAndSimplify(SHAPE_LOWER, SHAPE_UPPER, IBooleanFunction.OR);
 
@@ -46,8 +46,8 @@ public class FluidPumpBlock extends Block
 	}
 	
 	@Override
-	public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
-		// TODO Auto-generated method stub
+	public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) 
+	{
 		return SHAPE_COMBINED;
 	}
 	
