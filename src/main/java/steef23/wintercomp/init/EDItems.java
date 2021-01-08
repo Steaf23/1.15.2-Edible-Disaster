@@ -7,14 +7,14 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import steef23.wintercomp.WinterComp;
 import steef23.wintercomp.WinterComp.EDItemGroup;
-import steef23.wintercomp.item.CentipedeSpawnEggItem;
+import steef23.wintercomp.item.ChocolateGolemSpawnEggItem;
 
 public class EDItems 
 {
 	public static final DeferredRegister<Item> ITEMS = new DeferredRegister<>(ForgeRegistries.ITEMS, WinterComp.MOD_ID);
 	
-	public static final RegistryObject<CentipedeSpawnEggItem> CENTIPEDE_SPAWN_EGG = ITEMS.register("centipede_spawn_egg", 
-			() -> new CentipedeSpawnEggItem(EDEntityTypes.CENTIPEDE_ENTITY, 0x000000, 0xFFFFFF,
+	public static final RegistryObject<ChocolateGolemSpawnEggItem> CHOCOLATE_GOLEM_SPAWN_EGG = ITEMS.register("chocolate_golem_spawn_egg", 
+			() -> new ChocolateGolemSpawnEggItem(EDEntityTypes.CHOCOLATE_GOLEM_ENTITY, 0x50291A, 0x2E69AF,
 					new Item.Properties().group(EDItemGroup.instance))); 
 	
 	public static final RegistryObject<BucketItem> CHOCOLATE_BUCKET = ITEMS.register("chocolate_bucket", 

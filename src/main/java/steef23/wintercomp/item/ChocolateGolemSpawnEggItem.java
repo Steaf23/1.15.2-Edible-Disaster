@@ -19,19 +19,19 @@ import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
-public class CentipedeSpawnEggItem extends SpawnEggItem
+public class ChocolateGolemSpawnEggItem extends SpawnEggItem
 {
-	protected static final List<CentipedeSpawnEggItem> UNADDED_EGGS = new ArrayList<CentipedeSpawnEggItem>();
+	protected static final List<ChocolateGolemSpawnEggItem> UNADDED_EGGS = new ArrayList<ChocolateGolemSpawnEggItem>();
 	private final Lazy<? extends EntityType<?>> entityTypeSupplier;
 	
-	public CentipedeSpawnEggItem(final NonNullSupplier<? extends EntityType<?>> entityTypeSupplier, final int primaryColor, final int secondaryColor, final Item.Properties properties)
+	public ChocolateGolemSpawnEggItem(final NonNullSupplier<? extends EntityType<?>> entityTypeSupplier, final int primaryColor, final int secondaryColor, final Item.Properties properties)
 	{
 		super(null, primaryColor, secondaryColor, properties);
 		this.entityTypeSupplier = Lazy.of(entityTypeSupplier::get);
 		UNADDED_EGGS.add(this);
 	}
 	
-	public CentipedeSpawnEggItem(final RegistryObject<? extends EntityType<?>> entityTypeSupplier, final int primaryColor, final int secondaryColor, final Item.Properties properties) 
+	public ChocolateGolemSpawnEggItem(final RegistryObject<? extends EntityType<?>> entityTypeSupplier, final int primaryColor, final int secondaryColor, final Item.Properties properties) 
 	{
 		super(null, primaryColor, secondaryColor, properties);
 		this.entityTypeSupplier = Lazy.of(entityTypeSupplier::get);

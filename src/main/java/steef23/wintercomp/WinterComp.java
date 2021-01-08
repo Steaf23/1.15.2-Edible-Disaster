@@ -33,7 +33,7 @@ import steef23.wintercomp.init.EDFluids;
 import steef23.wintercomp.init.EDItems;
 import steef23.wintercomp.init.EDPotionTypes;
 import steef23.wintercomp.init.EDTileEntityTypes;
-import steef23.wintercomp.item.CentipedeSpawnEggItem;
+import steef23.wintercomp.item.ChocolateGolemSpawnEggItem;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod("wintercomp")
@@ -88,7 +88,7 @@ public class WinterComp
     private void setup(final FMLCommonSetupEvent event)
     {
     	EDEntityTypes.registerPlacementTypes();
-    	registerEntityWorldSpawn(EDEntityTypes.CENTIPEDE_ENTITY.get(), 15, 1, 2, EDBiomes.WINTER_BIOME.get());
+    	registerEntityWorldSpawn(EDEntityTypes.CHOCOLATE_GOLEM_ENTITY.get(), 1, 1, 1, EDBiomes.WINTER_BIOME.get());
     }
     
     public void registerEntityWorldSpawn(EntityType<?> entity, int weight, int minGroupIn, int maxGroupIn, Biome... biomes)
@@ -122,7 +122,7 @@ public class WinterComp
     @SubscribeEvent
     public static void onSpawnEntities(final RegistryEvent.Register<EntityType<?>> event)
     {
-    	CentipedeSpawnEggItem.initSpawnEgg();
+    	ChocolateGolemSpawnEggItem.initSpawnEgg();
     }
     
     public static class EDItemGroup extends ItemGroup

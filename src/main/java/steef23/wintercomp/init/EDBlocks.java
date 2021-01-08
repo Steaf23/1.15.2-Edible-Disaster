@@ -9,6 +9,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import steef23.wintercomp.WinterComp;
 import steef23.wintercomp.block.ChocolateBlock;
+import steef23.wintercomp.block.ChocolateFluidBlock;
 import steef23.wintercomp.block.FluidPumpBlock;
 import steef23.wintercomp.block.WinterPortalBlock;
 
@@ -23,7 +24,7 @@ public class EDBlocks
 			() -> new ChocolateBlock(Block.Properties.from(Blocks.STONE).tickRandomly()));
 	
 	public static final RegistryObject<FlowingFluidBlock> CHOCOLATE = BLOCKS.register("chocolate", 
-			() -> new FlowingFluidBlock(() -> EDFluids.CHOCOLATE_FLUID.get(), Block.Properties.create(Material.WATER)
+			() -> new ChocolateFluidBlock(() -> EDFluids.CHOCOLATE_FLUID.get(), Block.Properties.create(Material.WATER)
 					.doesNotBlockMovement().hardnessAndResistance(100.0f).noDrops()));
 	
 	public static final RegistryObject<Block> WINTER_PORTAL = BLOCKS.register("winter_portal", 

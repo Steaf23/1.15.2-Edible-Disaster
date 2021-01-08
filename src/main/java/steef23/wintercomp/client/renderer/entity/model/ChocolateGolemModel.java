@@ -36,7 +36,7 @@ public class ChocolateGolemModel<T extends ChocolateGolemEntity> extends EntityM
 		this.legRight = new ModelRenderer(this);
 		this.legRight.setRotationPoint(-35.0F, 8.0F, 20.0F);
 		this.body.addChild(legRight);
-		this.legRight.setTextureOffset(128, 72).addBox(-8.0F, 4.0F, -8.0F, 16.0F, 16.0F, 16.0F, 0.0F, false);
+		this.legRight.setTextureOffset(128, 72).addBox(-8.0F, 4.0F, -8.0F, 16.0F, 16.0F, 16.0F, 0.0F, true);
 
 		this.legLeft = new ModelRenderer(this);
 		this.legLeft.setRotationPoint(-13.0F, 8.0F, 20.0F);
@@ -51,7 +51,7 @@ public class ChocolateGolemModel<T extends ChocolateGolemEntity> extends EntityM
 		this.armRight = new ModelRenderer(this);
 		this.armRight.setRotationPoint(0.0F, -26.0F, 20.0F);
 		this.body.addChild(armRight);
-		this.armRight.setTextureOffset(100, 100).addBox(-54.0F, -10.0F, -8.0F, 6.0F, 52.0F, 16.0F, 0.0F, false);
+		this.armRight.setTextureOffset(100, 100).addBox(-54.0F, -10.0F, -8.0F, 6.0F, 52.0F, 16.0F, 0.0F, true);
 	}
 	
 	@Override
