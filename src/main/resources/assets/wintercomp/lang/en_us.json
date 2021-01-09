@@ -4,5 +4,6 @@
 	"item.wintercomp.chocolate_bucket":"Chocolate Bucket",
 	"item.wintercomp.chocolate_core":"Chocolate Core",
 	"block.wintercomp.chocolate_block":"Chocolate Block",
-	"block.wintercomp.fluid_pump":"Fluid Pump"
+	"block.wintercomp.fluid_pump":"Fluid Pump",
+	"entity.wintercomp.chocolate_golem":"Chocolate Golem"
 }

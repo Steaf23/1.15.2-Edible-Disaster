@@ -1,5 +1,7 @@
 package steef23.wintercomp.block;
 
+import java.util.HashMap;
+import java.util.Random;
 import java.util.function.Supplier;
 
 import net.minecraft.advancements.CriteriaTriggers;
@@ -7,40 +9,127 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.FlowingFluidBlock;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.pattern.BlockMaterialMatcher;
-import net.minecraft.block.pattern.BlockPattern;
-import net.minecraft.block.pattern.BlockPattern.PatternHelper;
-import net.minecraft.block.pattern.BlockPatternBuilder;
-import net.minecraft.block.pattern.BlockStateMatcher;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.fluid.FlowingFluid;
-import net.minecraft.util.CachedBlockInfo;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import steef23.wintercomp.entity.ChocolateGolemEntity;
 import steef23.wintercomp.init.EDBlocks;
 import steef23.wintercomp.init.EDEntityTypes;
 
 public class ChocolateFluidBlock extends FlowingFluidBlock
 {
-	private static String[] frontLayer = {"~~~~~",
-			   							  "~CCC~",
-			   							  "~C~C~",
-			   							  "~III~",
-			   							  "~~~~~"};
-	private static String[] middleLayer = {"~~P~~",
-										   "CCCCC",
-										   "CCFCC",
-										   "CIIIC",
-										   "~C~C~"};
-	private static String[] backLayer = {"~~~~~",
-			  							 "~CCC~",
-			  							 "~CCC~",
-			  							 "~III~",
-			  							 "~~~~~"};
-
-	private BlockPattern chocolateGolemPattern;
+	
+	
+	private static final String[][] golemEast = 
+		{{"~,~,~,~,~",
+		  "~,~,~,~,~",
+		  "~,~,~,~,~",
+		  "~,~,~,~,~",
+		  "~,~,~,~,~"},
+		 {"~,~,~,~,~",
+		  "~,C,C,C,~",
+   		  "~,C,~,C,~",
+   		  "~,I,I,I,~",
+		  "~,~,~,~,~"},
+		 {"~,~,P,~,~",
+		  "C,C,C,C,C",
+		  "C,C,F,C,C",
+		  "C,I,I,I,C",
+		  "~,C,~,C,~"},
+		 {"~,~,~,~,~",
+		  "~,C,C,C,~",
+		  "~,C,C,C,~",
+		  "~,I,I,I,~",
+		  "~,~,~,~,~"},
+		 {"~,~,~,~,~",
+		  "~,~,~,~,~",
+		  "~,~,~,~,~",
+		  "~,~,~,~,~",
+		  "~,~,~,~,~"}};
+	private static final String[][] golemWest =
+		{{"~,~,~,~,~",
+		  "~,~,~,~,~",
+		  "~,~,~,~,~",
+		  "~,~,~,~,~",
+		  "~,~,~,~,~"},
+		 {"~,~,~,~,~",
+		  "~,C,C,C,~",
+   		  "~,C,C,C,~",
+   		  "~,I,I,I,~",
+		  "~,~,~,~,~"},
+		 {"~,~,P,~,~",
+		  "C,C,C,C,C",
+		  "C,C,F,C,C",
+		  "C,I,I,I,C",
+		  "~,C,~,C,~"},
+		 {"~,~,~,~,~",
+		  "~,C,C,C,~",
+		  "~,C,~,C,~",
+		  "~,I,I,I,~",
+		  "~,~,~,~,~"},
+		 {"~,~,~,~,~",
+		  "~,~,~,~,~",
+		  "~,~,~,~,~",
+		  "~,~,~,~,~",
+		  "~,~,~,~,~"}};
+	private static final String[][] golemNorth = 
+		{{"~,~,~,~,~",
+		  "~,~,C,~,~",
+		  "~,~,C,~,~",
+		  "~,~,C,~,~",
+		  "~,~,~,~,~"},
+		 {"~,~,~,~,~",
+		  "~,C,C,C,~",
+   		  "~,C,C,C,~",
+   		  "~,I,I,I,~",
+		  "~,~,C,~,~"},
+		 {"~,~,P,~,~",
+		  "~,C,C,C,~",
+		  "~,C,F,~,~",
+		  "~,I,I,I,~",
+		  "~,~,~,~,~"},
+		 {"~,~,~,~,~",
+		  "~,C,C,C,~",
+		  "~,C,C,C,~",
+		  "~,I,I,I,~",
+		  "~,~,C,~,~"},
+		 {"~,~,~,~,~",
+		  "~,~,C,~,~",
+		  "~,~,C,~,~",
+		  "~,~,C,~,~",
+		  "~,~,~,~,~"}};
+	private static final String[][] golemSouth = 
+		{{"~,~,~,~,~",
+		  "~,~,C,~,~",
+		  "~,~,C,~,~",
+		  "~,~,C,~,~",
+		  "~,~,~,~,~"},
+		 {"~,~,~,~,~",
+		  "~,C,C,C,~",
+   		  "~,C,C,C,~",
+   		  "~,I,I,I,~",
+		  "~,~,C,~,~"},
+		 {"~,~,P,~,~",
+		  "~,C,C,C,~",
+		  "~,~,F,C,~",
+		  "~,I,I,I,~",
+		  "~,~,~,~,~"},
+		 {"~,~,~,~,~",
+		  "~,C,C,C,~",
+		  "~,C,C,C,~",
+		  "~,I,I,I,~",
+		  "~,~,C,~,~"},
+		 {"~,~,~,~,~",
+		  "~,~,C,~,~",
+		  "~,~,C,~,~",
+		  "~,~,C,~,~",
+		  "~,~,~,~,~"}};
+	
+	private static final HashMap<String, Block> blockLUT =  new HashMap<>();
 
 	public ChocolateFluidBlock(Supplier<? extends FlowingFluid> supplier, Properties properties) 
 	{
@@ -55,80 +144,107 @@ public class ChocolateFluidBlock extends FlowingFluidBlock
 		{
 			if (state.get(LEVEL) == 0 && worldIn.getBlockState(pos.down()).getBlock() == Blocks.IRON_BLOCK)
 			{
-				this.trySpawnGolem(worldIn, pos);
-				System.out.println("BLOCK ADDED");
+				trySpawnGolem(worldIn, pos);
 			}
 	    }
 		super.onBlockAdded(state, worldIn, pos, oldState, isMoving);
 	}
 	
+	@Override
+	public void randomTick(BlockState state, ServerWorld worldIn, BlockPos pos, Random random) 
+	{
+		if (!worldIn.isRemote && state.get(LEVEL) == 0)
+		{
+			if (this.tryFreeze(worldIn, pos))
+			{
+				worldIn.setBlockState(pos, EDBlocks.CHOCOLATE_BLOCK.get().getDefaultState());
+			}
+		}
+		super.randomTick(state, worldIn, pos, random);
+	}
+	
+	private boolean tryFreeze(World worldIn, BlockPos pos)
+	{		
+		int iceCounter = 0; 
+		for (Direction direction : Direction.values())
+		{
+			if (worldIn.getBlockState(pos.offset(direction)).getBlock() == Blocks.BLUE_ICE)
+			{
+				iceCounter++;
+			}
+		}
+		
+		if (iceCounter >= 3)
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	private static boolean checkBox(World worldIn, BlockPos pos, String[][] arrayIn)
+	{
+		BlockPos ftl = pos.add(new Vec3i(2, 2, 2));
+		
+		for (int i = 0; i < arrayIn.length; i++)
+		{
+			for (int j = 0; j < arrayIn[0].length; j++)
+			{
+				for (int k = 0; k < arrayIn[0][0].split(",").length; k++)
+				{
+					
+					Block gridBlock = blockLUT.get(arrayIn[i][j].split(",")[k]);
+					Block worldBlock = worldIn.getBlockState(ftl.add(-i, -j, -k)).getBlock();
+					if (worldBlock != gridBlock)
+					{
+						return false;
+					}
+				}
+			}
+		}
+		
+		return true;
+	}
+	
 	private void trySpawnGolem(World worldIn, BlockPos pos)
 	{
-		float yaw =  0.0f;
-		PatternHelper blockPatternHelper = this.getChocolateGolemPattern().match(worldIn, pos);
+		blockLUT.put("~", Blocks.AIR);
+		blockLUT.put("C", EDBlocks.CHOCOLATE_BLOCK.get());
+		blockLUT.put("I", Blocks.IRON_BLOCK);
+		blockLUT.put("P", Blocks.CARVED_PUMPKIN);
+		blockLUT.put("F", EDBlocks.CHOCOLATE.get());
 		
-		System.out.format("%s width: %d, height: %d, depth: %d", blockPatternHelper.toString(),
-				blockPatternHelper.getWidth(), blockPatternHelper.getHeight(), blockPatternHelper);
-		
-		if (blockPatternHelper != null)
+		boolean east = checkBox(worldIn, pos, golemEast);
+		boolean west = checkBox(worldIn, pos, golemWest);
+		boolean north = checkBox(worldIn, pos, golemNorth);
+		boolean south = checkBox(worldIn, pos, golemSouth);
+		if (east || west || north || south)
 		{
-			for (int i = 0; i < this.getChocolateGolemPattern().getThumbLength(); ++i)
+			for (int x = -2; x < 3; x++)
 			{
-				CachedBlockInfo cachedBlockInfo = blockPatternHelper.translateOffset(0,  i, 0);
-				worldIn.setBlockState(cachedBlockInfo.getPos(), Blocks.AIR.getDefaultState(), 2);
-				worldIn.playEvent(2001, cachedBlockInfo.getPos(), Block.getStateId(cachedBlockInfo.getBlockState()));
+				for (int y = -2; y < 3; y++)
+				{
+					for (int z = -2; z < 3; z++)
+					{
+						worldIn.setBlockState(pos.add(x, y, z), Blocks.AIR.getDefaultState(), 2);
+						worldIn.playEvent(2001, pos, Block.getStateId(worldIn.getBlockState(pos)));
+					}
+				}
 			}
 			
-			ChocolateGolemEntity stoneGolemEntity = EDEntityTypes.CHOCOLATE_GOLEM_ENTITY.get().create(worldIn);
-			BlockPos blockpos = blockPatternHelper.translateOffset(0, 1, 0).getPos();
-			stoneGolemEntity.setLocationAndAngles((double)blockpos.getX() + 0.5D, 
-												  (double)blockpos.getY() + 0.05D, 
-												  (double)blockpos.getZ() + 0.5D, 
-												  yaw, 
-												  0.0f);
-			worldIn.addEntity(stoneGolemEntity);
+			ChocolateGolemEntity golemEntity = EDEntityTypes.CHOCOLATE_GOLEM_ENTITY.get().create(worldIn);
+			float yaw = 0;
+			if (east) yaw = 0;
+			else if (west) yaw = 180;
+			else if (north) yaw = 90;
+			else if (south) yaw = 270;
 			
-			for(ServerPlayerEntity serverplayerentity : worldIn.getEntitiesWithinAABB(ServerPlayerEntity.class, stoneGolemEntity.getBoundingBox().grow(5.0D))) {
-	            CriteriaTriggers.SUMMONED_ENTITY.trigger(serverplayerentity, stoneGolemEntity);
-	         	}
-
-	        for(int l = 0; l < this.getChocolateGolemPattern().getThumbLength(); ++l) {
-	            CachedBlockInfo cachedBlockInfo1 = blockPatternHelper.translateOffset(0, l, 0);
-	            worldIn.notifyNeighbors(cachedBlockInfo1.getPos(), Blocks.AIR);
-	        }
+			golemEntity.setLocationAndAngles(pos.getX(), pos.getY() - 1, pos.getZ(), yaw, 0);
+			worldIn.addEntity(golemEntity);
+			
+			for(ServerPlayerEntity serverplayerentity : worldIn.getEntitiesWithinAABB(ServerPlayerEntity.class, golemEntity.getBoundingBox().grow(5.0D))) 
+			{
+				CriteriaTriggers.SUMMONED_ENTITY.trigger(serverplayerentity, golemEntity);
+         	}
 		}
-	}
-
-	private BlockPattern getChocolateGolemPattern() 
-	{
-
-		if (this.chocolateGolemPattern == null) 
-	    {
-			BlockPatternBuilder patternBuilder = BlockPatternBuilder.start();
-			
-			patternBuilder.aisle(frontLayer)
-				.where('~', CachedBlockInfo.hasState(BlockMaterialMatcher.forMaterial(Material.AIR)))
-	        	.where('P', CachedBlockInfo.hasState(BlockStateMatcher.forBlock(Blocks.CARVED_PUMPKIN)))
-	        	.where('C', CachedBlockInfo.hasState(BlockStateMatcher.forBlock(EDBlocks.CHOCOLATE_BLOCK.get())))
-	        	.where('F', CachedBlockInfo.hasState(BlockStateMatcher.forBlock(EDBlocks.CHOCOLATE.get())))
-	        	.where('I', CachedBlockInfo.hasState(BlockStateMatcher.forBlock(Blocks.IRON_BLOCK)));
-			
-			patternBuilder.aisle(middleLayer)
-				.where('~', CachedBlockInfo.hasState(BlockMaterialMatcher.forMaterial(Material.AIR)))
-	        	.where('P', CachedBlockInfo.hasState(BlockStateMatcher.forBlock(Blocks.CARVED_PUMPKIN)))
-	        	.where('C', CachedBlockInfo.hasState(BlockStateMatcher.forBlock(EDBlocks.CHOCOLATE_BLOCK.get())))
-	        	.where('F', CachedBlockInfo.hasState(BlockStateMatcher.forBlock(EDBlocks.CHOCOLATE.get())))
-	        	.where('I', CachedBlockInfo.hasState(BlockStateMatcher.forBlock(Blocks.IRON_BLOCK)));
-			
-			patternBuilder.aisle(backLayer)
-				.where('~', CachedBlockInfo.hasState(BlockMaterialMatcher.forMaterial(Material.AIR)))
-				.where('P', CachedBlockInfo.hasState(BlockStateMatcher.forBlock(Blocks.CARVED_PUMPKIN)))
-				.where('C', CachedBlockInfo.hasState(BlockStateMatcher.forBlock(EDBlocks.CHOCOLATE_BLOCK.get())))
-				.where('F', CachedBlockInfo.hasState(BlockStateMatcher.forBlock(EDBlocks.CHOCOLATE.get())))
-				.where('I', CachedBlockInfo.hasState(BlockStateMatcher.forBlock(Blocks.IRON_BLOCK)));
-			
-			this.chocolateGolemPattern = patternBuilder.build();
-	   	}
-		return this.chocolateGolemPattern;
 	}
 }

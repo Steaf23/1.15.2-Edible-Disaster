@@ -88,7 +88,7 @@ public class WinterComp
     private void setup(final FMLCommonSetupEvent event)
     {
     	EDEntityTypes.registerPlacementTypes();
-    	registerEntityWorldSpawn(EDEntityTypes.CHOCOLATE_GOLEM_ENTITY.get(), 1, 1, 1, EDBiomes.WINTER_BIOME.get());
+    	registerEntityWorldSpawn(EDEntityTypes.CHOCOLATE_GOLEM_ENTITY.get(), 1, 1, 2, EDBiomes.WINTER_BIOME.get());
     }
     
     public void registerEntityWorldSpawn(EntityType<?> entity, int weight, int minGroupIn, int maxGroupIn, Biome... biomes)

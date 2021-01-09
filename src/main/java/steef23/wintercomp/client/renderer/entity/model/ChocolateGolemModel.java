@@ -67,6 +67,22 @@ public class ChocolateGolemModel<T extends ChocolateGolemEntity> extends EntityM
 	}
 	
 	@Override
+	public void setLivingAnimations(T entityIn, float limbSwing, float limbSwingAmount, float partialTick) 
+	{
+		int i = entityIn.getAttackTimer();
+		if (i > 0) 
+		{
+			this.armRight.rotateAngleX = -2.0F + 1.5F * this.triangleWave((float)i - partialTick, 10.0F);
+			this.armLeft.rotateAngleX = -2.0F + 1.5F * this.triangleWave((float)i - partialTick, 10.0F);
+		}
+		else
+		{
+			this.armRight.rotateAngleX = (-0.2F + 1.5F * this.triangleWave(limbSwing, 13.0F)) * limbSwingAmount;
+            this.armLeft.rotateAngleX = (-0.2F - 1.5F * this.triangleWave(limbSwing, 13.0F)) * limbSwingAmount;
+		}
+	}
+	
+	@Override
 	public void render(MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
 	{
 		this.body.render(matrixStack, buffer, packedLight, packedOverlay);

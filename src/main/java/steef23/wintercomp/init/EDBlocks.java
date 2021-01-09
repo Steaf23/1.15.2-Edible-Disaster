@@ -25,7 +25,7 @@ public class EDBlocks
 	
 	public static final RegistryObject<FlowingFluidBlock> CHOCOLATE = BLOCKS.register("chocolate", 
 			() -> new ChocolateFluidBlock(() -> EDFluids.CHOCOLATE_FLUID.get(), Block.Properties.create(Material.WATER)
-					.doesNotBlockMovement().hardnessAndResistance(100.0f).noDrops()));
+					.doesNotBlockMovement().hardnessAndResistance(100.0f).noDrops().tickRandomly()));
 	
 	public static final RegistryObject<Block> WINTER_PORTAL = BLOCKS.register("winter_portal", 
 			() -> new WinterPortalBlock(Block.Properties.from(Blocks.END_PORTAL)));
