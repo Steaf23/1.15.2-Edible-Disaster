@@ -1,6 +1,8 @@
 package steef23.wintercomp.init;
 
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.BucketItem;
+import net.minecraft.item.Food;
 import net.minecraft.item.Item;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
@@ -22,4 +24,7 @@ public class EDItems
 	
 	public static final RegistryObject<Item> CHOCOLATE_CORE = ITEMS.register("chocolate_core",
 			() -> new Item(new Item.Properties().group(EDItemGroup.instance)));
+	
+	public static final RegistryObject<BlockItem> CHOCOLATE_BLOCK = ITEMS.register("chocolate_block", 
+			() -> new BlockItem(EDBlocks.CHOCOLATE_BLOCK.get(), new Item.Properties().group(EDItemGroup.instance).food(new Food.Builder().hunger(5).saturation(0.6f).build())));
 }

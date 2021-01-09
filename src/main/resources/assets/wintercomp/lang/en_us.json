@@ -3,6 +3,10 @@
 	"item.wintercomp.chocolate_golem_spawn_egg":"Chocolate Golem Spawn Egg",
 	"item.wintercomp.chocolate_bucket":"Chocolate Bucket",
 	"item.wintercomp.chocolate_core":"Chocolate Core",
+	"item.minecraft.lingering_potion.effect.hunger":"Lingering Potion of Hunger",
+	"item.minecraft.potion.effect.hunger":"Potion of Hunger",
+	"item.minecraft.splash_potion.effect.hunger":"Splash Potion of Hunger",
+	"item.minecraft.tipped_arrow.effect.hunger":"Arrow of Hunger",
 	"block.wintercomp.chocolate_block":"Chocolate Block",
 	"block.wintercomp.fluid_pump":"Fluid Pump",
 	"entity.wintercomp.chocolate_golem":"Chocolate Golem"

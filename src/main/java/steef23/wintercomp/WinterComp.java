@@ -3,7 +3,6 @@ package steef23.wintercomp;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.minecraft.block.Blocks;
 import net.minecraft.block.FlowingFluidBlock;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.BlockItem;
@@ -24,6 +23,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.IForgeRegistry;
+import steef23.wintercomp.block.ChocolateBlock;
 import steef23.wintercomp.block.WinterPortalBlock;
 import steef23.wintercomp.init.EDBiomes;
 import steef23.wintercomp.init.EDBlocks;
@@ -73,7 +73,8 @@ public class WinterComp
     	
     	EDBlocks.BLOCKS.getEntries().stream().map(RegistryObject::get).filter(block -> 
     		!(block instanceof FlowingFluidBlock) && 
-    		!(block instanceof WinterPortalBlock)
+    		!(block instanceof WinterPortalBlock) &&
+    		!(block instanceof ChocolateBlock)
     		).forEach(block -> {
     			final Item.Properties properties = new Item.Properties().group(EDItemGroup.instance);
     			final BlockItem blockItem = new BlockItem(block, properties);
@@ -88,7 +89,7 @@ public class WinterComp
     private void setup(final FMLCommonSetupEvent event)
     {
     	EDEntityTypes.registerPlacementTypes();
-    	registerEntityWorldSpawn(EDEntityTypes.CHOCOLATE_GOLEM_ENTITY.get(), 1, 1, 2, EDBiomes.WINTER_BIOME.get());
+//    	registerEntityWorldSpawn(EDEntityTypes.CHOCOLATE_GOLEM_ENTITY.get(), 1, 1, 2, EDBiomes.WINTER_BIOME.get());
     }
     
     public void registerEntityWorldSpawn(EntityType<?> entity, int weight, int minGroupIn, int maxGroupIn, Biome... biomes)
@@ -137,7 +138,7 @@ public class WinterComp
 		@Override
 		public ItemStack createIcon() 
 		{
-			return new ItemStack(Blocks.BEDROCK);
+			return new ItemStack(EDBlocks.CHOCOLATE_BLOCK.get());
 		}
     }
 }
